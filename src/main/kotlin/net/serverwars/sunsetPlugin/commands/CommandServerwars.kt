@@ -48,9 +48,9 @@ object CommandServerwars {
             }
             .then(Commands.literal("create")
                 .requires { it.sender.hasPermission("serverwars.commands.lobby.create") }
-                .then(Commands.argument("size", LobbySizeArgumentType())
-                    .then(Commands.argument("access type", LobbyAccessTypeArgumentType())
-                        .then(Commands.argument("game type", LobbyGameTypeArgumentType())
+                .then(Commands.argument("size", LobbySizeArgumentType)
+                    .then(Commands.argument("access type", LobbyAccessTypeArgumentType)
+                        .then(Commands.argument("game type", LobbyGameTypeArgumentType)
                             .executes { CommandLobbyCreate.run(
                                 ctx = it,
                                 size = LobbySizeArgumentType.get(it, "size"),
@@ -73,7 +73,7 @@ object CommandServerwars {
                 }
                 .then(Commands.literal("size")
                     .requires { it.sender.hasPermission("serverwars.commands.lobby.set.size") }
-                    .then(Commands.argument("size", LobbySizeArgumentType())
+                    .then(Commands.argument("size", LobbySizeArgumentType)
                         .executes { CommandLobbySetSize.run(
                             ctx = it,
                             size = LobbySizeArgumentType.get(it, "size")
@@ -82,7 +82,7 @@ object CommandServerwars {
                 )
                 .then(Commands.literal("access")
                     .requires { it.sender.hasPermission("serverwars.commands.lobby.set.access") }
-                    .then(Commands.argument("access type", LobbyAccessTypeArgumentType())
+                    .then(Commands.argument("access type", LobbyAccessTypeArgumentType)
                         .executes { CommandLobbySetAccessType.run(
                             ctx = it,
                             accessType = LobbyAccessTypeArgumentType.get(it, "access type")
@@ -91,7 +91,7 @@ object CommandServerwars {
                 )
                 .then(Commands.literal("game")
                     .requires { it.sender.hasPermission("serverwars.commands.lobby.set.game") }
-                    .then(Commands.argument("game type", LobbyGameTypeArgumentType())
+                    .then(Commands.argument("game type", LobbyGameTypeArgumentType)
                         .executes { CommandLobbySetGameType.run(
                             ctx = it,
                             gameType = LobbyGameTypeArgumentType.get(it, "game type")

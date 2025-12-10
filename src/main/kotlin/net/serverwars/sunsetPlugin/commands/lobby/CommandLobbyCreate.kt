@@ -4,7 +4,6 @@ import com.mojang.brigadier.Command
 import com.mojang.brigadier.context.CommandContext
 import io.papermc.paper.command.brigadier.CommandSourceStack
 import net.kyori.adventure.audience.Audience
-import net.serverwars.sunsetPlugin.domain.gameserver.models.GameServerType
 import net.serverwars.sunsetPlugin.domain.lobby.exceptions.CreateLobbyException
 import net.serverwars.sunsetPlugin.domain.lobby.models.LobbyAccessType
 import net.serverwars.sunsetPlugin.domain.lobby.services.LobbyService
@@ -14,7 +13,7 @@ import org.bukkit.entity.Player
 
 object CommandLobbyCreate {
 
-    fun run(ctx: CommandContext<CommandSourceStack>, size: Int, accessType: LobbyAccessType, gameType: GameServerType): Int {
+    fun run(ctx: CommandContext<CommandSourceStack>, size: Int, accessType: LobbyAccessType, gameType: String): Int {
         try {
             LobbyService.createLobby(size = size, accessType = accessType, gameType = gameType)
             ctx.source.sender.sendTranslatedMessage("command.lobby.create.success")

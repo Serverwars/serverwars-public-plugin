@@ -1,6 +1,7 @@
 package net.serverwars.sunsetPlugin
 
-import net.serverwars.sunsetPlugin.events.manager.EventListenerRegistrar
+import net.serverwars.sunsetPlugin.domain.gameserver.services.GameServerService
+import net.serverwars.sunsetPlugin.listeners.EventListenerManager
 import net.serverwars.sunsetPlugin.translations.TranslationManager
 import org.bukkit.plugin.java.JavaPlugin
 
@@ -17,10 +18,13 @@ class Main : JavaPlugin() {
         saveDefaultConfig()
 
         // Event listeners
-        EventListenerRegistrar.registerEventListeners()
+        EventListenerManager.initialize()
 
         // Translations
         TranslationManager.loadTranslations()
+
+        // Fetch available Game server types
+        GameServerService.initialize()
     }
 
 }

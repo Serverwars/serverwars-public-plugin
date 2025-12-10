@@ -88,7 +88,7 @@ data class Lobby(
             sendMessage("queue.success.match_ready", this.serverSlug)
             participantUuids.forEach { playerUuid ->
                 Bukkit.getPlayer(playerUuid)?.let { player ->
-                    Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "transfer ${this.serverSlug}.${Config.getMinecraftServerIP()} 25565 ${player.name}")
+                    Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "transfer ${this.serverSlug}.${Config.getServerwarsMinecraftServerIP()} 25565 ${player.name}")
                 }
             }
             LobbyService.deleteLobby()

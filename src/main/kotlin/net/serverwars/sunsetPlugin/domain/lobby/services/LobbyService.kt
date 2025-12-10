@@ -1,6 +1,5 @@
 package net.serverwars.sunsetPlugin.domain.lobby.services
 
-import net.serverwars.sunsetPlugin.domain.gameserver.models.GameServerType
 import net.serverwars.sunsetPlugin.domain.lobby.exceptions.CreateLobbyException
 import net.serverwars.sunsetPlugin.domain.lobby.exceptions.DeleteLobbyException
 import net.serverwars.sunsetPlugin.domain.lobby.exceptions.SendLobbyToMatchException
@@ -26,7 +25,7 @@ object LobbyService {
         }
     }
 
-    fun createLobby(size: Int, accessType: LobbyAccessType, gameType: GameServerType): Lobby {
+    fun createLobby(size: Int, accessType: LobbyAccessType, gameType: String): Lobby {
         if (lobby != null) {
             throw CreateLobbyException("command.lobby.create.error.too_many_existing_lobbies")
         }
@@ -76,7 +75,7 @@ object LobbyService {
         return updatedLobby
     }
 
-    fun updateLobbyGameType(value: GameServerType): Lobby {
+    fun updateLobbyGameType(value: String): Lobby {
         val lobbyValue = this.lobby
             ?: throw UpdateLobbyException("command.lobby.set.error.no_lobby")
 

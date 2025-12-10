@@ -1,11 +1,11 @@
-package net.serverwars.sunsetPlugin.events
+package net.serverwars.sunsetPlugin.listeners
 
 import net.serverwars.sunsetPlugin.domain.lobby.services.LobbyService
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerQuitEvent
 
-class PlayerQuitListener : Listener {
+object PlayerQuitListener : Listener {
 
     @EventHandler
     fun onPlayerQuit(event: PlayerQuitEvent) {

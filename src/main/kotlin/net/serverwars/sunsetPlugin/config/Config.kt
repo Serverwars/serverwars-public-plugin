@@ -21,9 +21,9 @@ object Config {
         return "$backendUrl/sunset/v1"
     }
 
-    fun getMinecraftServerIP(): String {
-        val minecraftServerIp = props["minecraft.server.ip"] ?: error("minecraft.server.ip not set in properties")
-        return minecraftServerIp.toString()
+    fun getServerwarsMinecraftServerIP(): String {
+        val ip = props["serverwars.minecraft.server.ip"] ?: error("minecraft.server.ip not set in properties")
+        return ip.toString()
     }
 
     fun getLocale(): SupportedLocale {

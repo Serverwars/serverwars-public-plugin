@@ -22,7 +22,7 @@ object QueueEntryCreateMapper {
         return QueueEntryCreateDto(
             serverSlug = queueEntryCreate.serverSlug,
             playerUuids = queueEntryCreate.playerUuids.map { it.toString() },
-            gameType = queueEntryCreate.gameType.value,
+            gameType = queueEntryCreate.gameType,
             transferIP = queueEntryCreate.transferIP,
         )
     }

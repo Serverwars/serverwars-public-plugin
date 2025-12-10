@@ -13,18 +13,16 @@ import net.serverwars.sunsetPlugin.domain.lobby.models.Lobby
 import net.serverwars.sunsetPlugin.translations.Translations
 import java.util.concurrent.CompletableFuture
 
-class LobbySizeArgumentType : CustomArgumentType<Int, Int> {
+object LobbySizeArgumentType : CustomArgumentType<Int, Int> {
 
-    companion object {
-        private val NOT_ALLOWED = DynamicCommandExceptionType { size: Any ->
-            MessageComponentSerializer.message().serialize(
-                Translations.get("command.lobby.error.invalid_size", size)
-            )
-        }
-
-        fun get(ctx: CommandContext<*>, name: String): Int =
-            ctx.getArgument(name, Int::class.java)
+    private val NOT_ALLOWED = DynamicCommandExceptionType { size: Any ->
+        MessageComponentSerializer.message().serialize(
+            Translations.get("command.lobby.error.invalid_size", size)
+        )
     }
+
+    fun get(ctx: CommandContext<*>, name: String): Int =
+        ctx.getArgument(name, Int::class.java)
 
     override fun parse(reader: StringReader): Int {
         val start = reader.cursor
