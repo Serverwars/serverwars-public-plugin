@@ -19,13 +19,11 @@ object Translations {
         } else rawValue
 
         val prefix = when {
-            "error." in key -> get("prefix.error_message")
-            "success." in key -> get("prefix.success_message")
-            else -> null
-        }?.append(Component.space())
+            "error." in key -> properties.getProperty("prefix.error_message", "prefix.error_message")
+            "success." in key -> properties.getProperty("prefix.success_message", "prefix.success_message")
+            else -> ""
+        }
 
-        val deserializedMessage = MiniMessage.miniMessage().deserialize(formatted)
-
-        return prefix?.append(deserializedMessage) ?: deserializedMessage
+        return MiniMessage.miniMessage().deserialize("$prefix$formatted")
     }
 }

@@ -76,7 +76,7 @@ data class Lobby(
     }
 
     suspend fun matchFound(matchUuid: UUID) {
-        sendActionBarMessage("queue.success.match_found.action_bar")
+        sendActionBarMessage("queue.match_found.action_bar")
         sendMessage("queue.success.match_found")
         playMatchFoundSound(this)
 
