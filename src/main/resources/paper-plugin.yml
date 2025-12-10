@@ -1,0 +1,106 @@
+name: Serverwars
+version: '1.0-SNAPSHOT'
+main: net.serverwars.sunsetPlugin.Main
+api-version: '1.21'
+authors: [ Wout ]
+website: serverwars.net
+bootstrapper: "net.serverwars.sunsetPlugin.PluginBootstrapper"
+
+permissions:
+  serverwars.commands:
+    description: Root permission for all ServerWars commands
+    default: op
+    children:
+      serverwars.commands.lobby: true
+      serverwars.commands.queue: true
+      serverwars.commands.config: true
+
+  # Config
+  serverwars.commands.config:
+    description: Allows access to all config-related commands
+    default: op
+    children:
+      serverwars.commands.config.reload: true
+
+  serverwars.commands.config.reload:
+    description: Allows reloading the plugin configuration
+    default: op
+
+  # Lobby
+  serverwars.commands.lobby:
+    description: Allows access to all lobby-related commands
+    default: op
+    children:
+      serverwars.commands.lobby.create: true
+      serverwars.commands.lobby.set: true
+      serverwars.commands.lobby.invite: true
+      serverwars.commands.lobby.uninvite: true
+      serverwars.commands.lobby.delete: true
+      serverwars.commands.lobby.join: true
+      serverwars.commands.lobby.join.others: true
+      serverwars.commands.lobby.leave: true
+      serverwars.commands.lobby.kick: true
+
+  serverwars.commands.lobby.create:
+    description: Allows creating new lobbies
+    default: op
+
+  serverwars.commands.lobby.set:
+    description: Allows modifying lobby settings
+    default: op
+    children:
+      serverwars.commands.lobby.set.size: true
+      serverwars.commands.lobby.set.access: true
+
+  serverwars.commands.lobby.set.size:
+    description: Allows changing lobby size
+    default: op
+
+  serverwars.commands.lobby.set.access:
+    description: Allows changing lobby access rules
+    default: op
+
+  serverwars.commands.lobby.invite:
+    description: Allows inviting players to a lobby
+    default: op
+
+  serverwars.commands.lobby.uninvite:
+    description: Allows uninviting players from a lobby
+    default: op
+
+  serverwars.commands.lobby.delete:
+    description: Allows deleting lobbies
+    default: op
+
+  serverwars.commands.lobby.join:
+    description: Allows a player to join a lobby
+    default: true
+
+  serverwars.commands.lobby.join.others:
+    description: Allows joining other players to lobbies
+    default: op
+
+  serverwars.commands.lobby.leave:
+    description: Allows a player to leave a lobby
+    default: true
+
+  serverwars.commands.lobby.kick:
+    description: Allows kicking players from a lobby
+    default: op
+
+  serverwars.commands.queue:
+    description: Allows access to all queue-related commands
+    default: op
+    children:
+      serverwars.commands.queue.enter: true
+      serverwars.commands.queue.leave: true
+
+  # Queue
+  serverwars.commands.queue.enter:
+    description: Allows entering the queue
+    default: op
+
+  serverwars.commands.queue.leave:
+    description: Allows leaving the queue
+    default: op
+

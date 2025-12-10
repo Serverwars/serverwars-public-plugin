@@ -1,0 +1,7 @@
+# --- Serverwars plugin config --- #
+
+# The language of all messages sent by this plugin
+locale: en_US
+
+# The short name of your server, registered on www.serverwars.net
+server_slug: awesomeserver
