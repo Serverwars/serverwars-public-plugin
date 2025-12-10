@@ -20,7 +20,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.21.8-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
     // Ktor HTTP Client (CIO engine for async network requests)
@@ -36,7 +36,7 @@ dependencies {
     implementation("net.kyori:adventure-text-minimessage:4.24.0")
 }
 
-val targetJavaVersion = 21
+val targetJavaVersion = 24
 kotlin {
     jvmToolchain(targetJavaVersion)
 }
@@ -49,7 +49,7 @@ tasks.processResources {
 }
 
 tasks.shadowJar {
-    archiveFileName.set("sunset-plugin-${project.version}.jar")
+    archiveFileName.set("Serverwars-${project.version}.jar")
     destinationDirectory = file("${System.getenv("BUILD_DESTINATION_DIRECTORY")}")
 }
 
