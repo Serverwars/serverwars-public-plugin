@@ -18,11 +18,15 @@ With this plugin, your server can:
 - Enter the matchmaking queue
 - Compete against other servers through the Serverwars network
 
+## Accept player transfers
+
+Upon starting a match with another server, this plugin automatically redirects players from your server to the Serverwars network.
+
+When a match is finished, an attempt is made to send the players back to your server. However, your server disables this by default. To fix this, set `accepts-transfers=true` in your `server.properties`.
+
 ## Installation
 
-Paper 1.21.11 with Java 24 (or higher) is required. Plugin should also work on Paper forks.
-
-Spigot is not supported.
+Paper 1.21.11 with Java 24 (or higher) is required. Plugin should also work on Paper forks. Spigot is not supported.
 
 ## Support
 
