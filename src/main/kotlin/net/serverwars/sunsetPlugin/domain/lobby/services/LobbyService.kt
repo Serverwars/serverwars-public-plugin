@@ -91,7 +91,7 @@ object LobbyService {
         return updatedLobby
     }
 
-    fun playerJoinLobby(playerUuid: UUID): Lobby {
+    fun playerJoinLobby(playerUuid: UUID, force: Boolean = false): Lobby {
         val lobbyValue = this.lobby
             ?: throw UpdateLobbyException("command.lobby.join.error.no_lobby")
 
@@ -103,7 +103,7 @@ object LobbyService {
             throw UpdateLobbyException("command.lobby.join.error.lobby_full")
         }
 
-        if (lobbyValue.lobbySettings.accessType == LobbyAccessType.INVITE_ONLY) {
+        if (!force && lobbyValue.lobbySettings.accessType == LobbyAccessType.INVITE_ONLY) {
             return acceptLobbyInvitation(playerUuid)
         }
 

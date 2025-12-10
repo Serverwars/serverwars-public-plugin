@@ -28,7 +28,7 @@ object CommandLobbyCreate {
             }
 
             if (ctx.source.sender is Player) {
-                LobbyService.playerJoinLobby((ctx.source.sender as Player).uniqueId)
+                LobbyService.playerJoinLobby((ctx.source.sender as Player).uniqueId, true)
             }
 
             return Command.SINGLE_SUCCESS
