@@ -10,6 +10,7 @@ import net.serverwars.sunsetPlugin.commands.arguments.LobbyGameTypeArgumentType
 import net.serverwars.sunsetPlugin.commands.arguments.LobbySizeArgumentType
 import net.serverwars.sunsetPlugin.commands.config.CommandConfigReload
 import net.serverwars.sunsetPlugin.commands.lobby.*
+import net.serverwars.sunsetPlugin.commands.match.CommandMatchEnter
 import net.serverwars.sunsetPlugin.commands.queue.CommandQueueEnter
 import net.serverwars.sunsetPlugin.commands.queue.CommandQueueLeave
 import org.bukkit.command.CommandSender
@@ -100,8 +101,8 @@ object CommandServerwars {
                 )
             )
             .then(Commands.literal("invite")
-                .requires { it.sender.hasPermission("serverwars.commands.lobby.invite") }
                 .then(Commands.argument("invitee", ArgumentTypes.player())
+                    .requires { it.sender.hasPermission("serverwars.commands.lobby.invite") }
                     .executes {
                         val targetResolver = it.getArgument("invitee", PlayerSelectorArgumentResolver::class.java)
                         val target = targetResolver.resolve(it.source).first()

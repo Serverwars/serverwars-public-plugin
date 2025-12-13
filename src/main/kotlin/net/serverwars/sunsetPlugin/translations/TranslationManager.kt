@@ -3,6 +3,8 @@ package net.serverwars.sunsetPlugin.translations
 import net.serverwars.sunsetPlugin.Main
 import net.serverwars.sunsetPlugin.config.Config
 import java.io.File
+import java.io.InputStreamReader
+import java.nio.charset.StandardCharsets
 import java.util.*
 
 
@@ -25,7 +27,11 @@ object TranslationManager {
             val translationFilePath = "lang/${it.value}.properties"
             val translationFile = File(Main.inst.dataFolder, translationFilePath)
             val props = Properties()
-            translationFile.inputStream().use { stream -> props.load(stream) }
+            translationFile.inputStream().use { stream ->
+                InputStreamReader(stream, StandardCharsets.UTF_8).use { reader ->
+                    props.load(reader)
+                }
+            }
             locales[it.value] = props
         }
     }

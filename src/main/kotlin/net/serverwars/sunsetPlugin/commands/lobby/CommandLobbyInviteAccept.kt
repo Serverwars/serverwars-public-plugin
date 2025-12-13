@@ -23,7 +23,7 @@ object CommandLobbyInviteAccept {
         try {
             val lobby = LobbyService.acceptLobbyInvitation(invitee.uniqueId)
             invitee.sendTranslatedMessage("command.lobby.invite.accept.success")
-            lobby.sendMessageExcluding(invitee.uniqueId, "command.lobby.invite.accept.success.notify_lobby", invitee.name)
+            lobby.sendMessageExcluding(invitee.uniqueId, "command.lobby.invite.accept.success.notify_lobby", invitee.name, lobby.participantUuids.size, lobby.lobbySettings.size)
             return Command.SINGLE_SUCCESS
         } catch (error: UpdateLobbyException) {
             invitee.sendTranslatedMessage(error.key, invitee.name)
