@@ -37,4 +37,8 @@ object Config {
         return Main.inst.config.getString("server_slug")
             ?: throw ConfigKeyNotFoundException("Could not find key 'server_slug' in plugin config.")
     }
+
+    fun shouldTransferOnMatchReady(): Boolean {
+        return Main.inst.config.getBoolean("transfer_on_match_ready", true)
+    }
 }

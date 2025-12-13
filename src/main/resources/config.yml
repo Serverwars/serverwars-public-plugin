@@ -1,7 +1,12 @@
 # --- Serverwars plugin config --- #
 
-# The language of all messages sent by this plugin
+# The language file in "./lang" containing chat messages sent by this plugin.
 locale: en_US
 
 # The short name of your server, registered on www.serverwars.net
 server_slug: awesomeserver
+
+# Triggered when a match is found.
+#   true: players are automatically redirected to the game server once it is ready.
+#   false: players have to manually join the game server.
+transfer_on_match_ready: true

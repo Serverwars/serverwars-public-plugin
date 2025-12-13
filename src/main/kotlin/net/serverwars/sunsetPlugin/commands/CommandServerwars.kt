@@ -174,6 +174,27 @@ object CommandServerwars {
             )
         )
 
+        // MATCH COMMAND
+        .then(Commands.literal("match")
+            .requires {
+                hasAnyChildPermission(
+                    it.sender,
+                    "serverwars.commands.match.enter",
+                )
+            }
+            .then(Commands.literal("enter")
+                .requires { it.sender.hasPermission("serverwars.commands.match.enter") }
+                .executes(CommandMatchEnter::self)
+                .then(Commands.argument("joiner", ArgumentTypes.player())
+                    .executes {
+                        val targetResolver = it.getArgument("joiner", PlayerSelectorArgumentResolver::class.java)
+                        val target = targetResolver.resolve(it.source).first()
+                        CommandMatchEnter.run(joiner = target)
+                    }
+                )
+            )
+        )
+
         .build()
 
 }

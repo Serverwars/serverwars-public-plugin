@@ -18,7 +18,6 @@ data class Lobby(
     val createdAtTimestamp: Long,
     val lobbySettings: LobbySettings,
     val invitations: List<LobbyInvitation>,
-    val serverSlug: String,
 ) {
     companion object {
         val ALLOWED_LOBBY_SIZES = listOf(1, 3, 5, 10)
@@ -30,7 +29,6 @@ data class Lobby(
                 createdAtTimestamp = now(),
                 lobbySettings = lobbySettings,
                 invitations = emptyList(),
-                serverSlug = Config.getServerSlug(),
             )
         }
     }
@@ -85,12 +83,18 @@ data class Lobby(
 
     fun sendParticipantsToMatch() {
         runSync {
-            sendMessage("queue.success.match_ready", this.serverSlug)
-            participantUuids.forEach { playerUuid ->
-                Bukkit.getPlayer(playerUuid)?.let { player ->
-                    Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "transfer ${this.serverSlug}.${Config.getServerwarsMinecraftServerIP()} 25565 ${player.name}")
+            val serverSlug = Config.getServerSlug()
+            sendMessage("queue.success.match_ready", serverSlug)
+
+            val shouldAutoTransferPlayers = Config.shouldTransferOnMatchReady()
+            if (shouldAutoTransferPlayers) {
+                participantUuids.forEach { playerUuid ->
+                    Bukkit.getPlayer(playerUuid)?.let { player ->
+                        Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "transfer $serverSlug.${Config.getServerwarsMinecraftServerIP()} 25565 ${player.name}")
+                    }
                 }
             }
+
             LobbyService.deleteLobby()
         }
     }

@@ -1,5 +1,6 @@
 package net.serverwars.sunsetPlugin.domain.queue.services.mappers
 
+import net.serverwars.sunsetPlugin.config.Config
 import net.serverwars.sunsetPlugin.domain.lobby.models.Lobby
 import net.serverwars.sunsetPlugin.domain.queue.models.queueentrycreate.QueueEntryCreate
 import net.serverwars.sunsetPlugin.domain.queue.models.queueentrycreate.QueueEntryCreateDto
@@ -10,7 +11,7 @@ object QueueEntryCreateMapper {
     // From lobby service
     fun fromLobby(lobby: Lobby): QueueEntryCreate {
         return QueueEntryCreate(
-            serverSlug = lobby.serverSlug,
+            serverSlug = Config.getServerSlug(),
             playerUuids = lobby.participantUuids,
             gameType = lobby.lobbySettings.gameType,
             transferIP = if (Bukkit.getServer().isAcceptingTransfers && Bukkit.getIp() != "") "${Bukkit.getIp()}:${Bukkit.getPort()}" else null,

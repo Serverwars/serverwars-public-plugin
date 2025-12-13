@@ -104,3 +104,7 @@ permissions:
     description: Allows leaving the queue
     default: op
 
+  # Match
+  serverwars.commands.match.enter:
+    description: Allows entering the match through commands
+    default: true
