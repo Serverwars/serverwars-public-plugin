@@ -5,7 +5,7 @@ import net.serverwars.sunsetPlugin.util.runAsync
 
 object GameServerService {
 
-    lateinit var availableGameServerTypes: GameServerTypes
+    var availableGameServerTypes: GameServerTypes? = null
 
     fun initialize() {
         runAsync {

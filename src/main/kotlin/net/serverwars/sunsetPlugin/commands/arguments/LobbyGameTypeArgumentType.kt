@@ -23,7 +23,7 @@ object LobbyGameTypeArgumentType : CustomArgumentType.Converted<String, String> 
     fun get(ctx: CommandContext<*>, name: String): String = ctx.getArgument(name, String::class.java)
 
     override fun convert(nativeType: String): String {
-        return if (GameServerService.availableGameServerTypes.types.contains(nativeType)) nativeType
+        return if (GameServerService.availableGameServerTypes?.types?.contains(nativeType) == true) nativeType
         else throw NOT_ALLOWED.create(nativeType)
     }
 
@@ -31,7 +31,7 @@ object LobbyGameTypeArgumentType : CustomArgumentType.Converted<String, String> 
         context: CommandContext<S>,
         builder: SuggestionsBuilder
     ): CompletableFuture<Suggestions> {
-        for (gameType in GameServerService.availableGameServerTypes.types) {
+        for (gameType in GameServerService.availableGameServerTypes?.types ?: emptyList()) {
             if (gameType.startsWith(builder.remainingLowerCase)) {
                 builder.suggest(gameType)
             }
