@@ -4,6 +4,7 @@ import com.mojang.brigadier.Command
 import com.mojang.brigadier.context.CommandContext
 import io.papermc.paper.command.brigadier.CommandSourceStack
 import net.serverwars.sunsetPlugin.domain.lobby.exceptions.UpdateLobbyException
+import net.serverwars.sunsetPlugin.domain.lobby.models.Participant
 import net.serverwars.sunsetPlugin.domain.lobby.services.LobbyService
 import net.serverwars.sunsetPlugin.translations.sendTranslatedMessage
 import org.bukkit.entity.Player
@@ -21,9 +22,9 @@ object CommandLobbyLeave {
 
     private fun run(leaver: Player): Int {
         try {
-            val lobby = LobbyService.playerLeaveLobby(leaver.uniqueId)
+            val lobby = LobbyService.participantLeaveLobby(Participant(leaver.uniqueId, leaver.name))
             leaver.sendTranslatedMessage("command.lobby.leave.success")
-            lobby.sendMessage("command.lobby.leave.success.notify_lobby", leaver.name, lobby.participantUuids.size, lobby.lobbySettings.size)
+            lobby.sendMessage("command.lobby.leave.success.notify_lobby", leaver.name, lobby.getParticipantAmount(), lobby.getLobbySettings().size)
             return Command.SINGLE_SUCCESS
         } catch (error: UpdateLobbyException) {
             leaver.sendTranslatedMessage(error.key, leaver.name)

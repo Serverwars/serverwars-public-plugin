@@ -4,6 +4,7 @@ import com.mojang.brigadier.Command
 import com.mojang.brigadier.context.CommandContext
 import io.papermc.paper.command.brigadier.CommandSourceStack
 import net.serverwars.sunsetPlugin.domain.lobby.exceptions.UpdateLobbyException
+import net.serverwars.sunsetPlugin.domain.lobby.models.Participant
 import net.serverwars.sunsetPlugin.domain.lobby.services.LobbyService
 import net.serverwars.sunsetPlugin.translations.sendTranslatedMessage
 import org.bukkit.entity.Player
@@ -18,7 +19,7 @@ object CommandLobbyInvite {
         }
 
         try {
-            val lobby = LobbyService.createLobbyInvitation(inviter.uniqueId, invitee.uniqueId)
+            val lobby = LobbyService.createLobbyInvitation(Participant.create(inviter.uniqueId), invitee.uniqueId)
             inviter.sendTranslatedMessage("command.lobby.invite.success", invitee.name)
             lobby.sendMessage("command.lobby.invite.success.notify_lobby", invitee.name, inviter.name)
             invitee.sendTranslatedMessage("command.lobby.invite.success.invitee_receive", inviter.name)

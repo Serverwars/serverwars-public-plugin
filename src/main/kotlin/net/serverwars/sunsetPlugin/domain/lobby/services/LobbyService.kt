@@ -8,10 +8,11 @@ import net.serverwars.sunsetPlugin.domain.lobby.models.Lobby
 import net.serverwars.sunsetPlugin.domain.lobby.models.LobbyAccessType
 import net.serverwars.sunsetPlugin.domain.lobby.models.LobbyInvitation
 import net.serverwars.sunsetPlugin.domain.lobby.models.LobbySettings
+import net.serverwars.sunsetPlugin.domain.lobby.models.Participant
 import net.serverwars.sunsetPlugin.domain.queue.exceptions.LeaveQueueException
 import net.serverwars.sunsetPlugin.domain.queue.services.QueueService
 import net.serverwars.sunsetPlugin.util.*
-import java.util.*
+import java.util.UUID
 import kotlin.properties.Delegates
 
 object LobbyService {
@@ -49,12 +50,12 @@ object LobbyService {
             throw UpdateLobbyException("command.lobby.error.invalid_size", value)
         }
 
-        if (lobbyValue.lobbySettings.size == value) {
+        if (lobbyValue.getLobbySettings().size == value) {
             throw UpdateLobbyException("command.lobby.set.error.nothing_changed")
         }
 
         playSetLobbySound(lobbyValue)
-        val updatedLobbySettings = lobbyValue.lobbySettings.withSize(value)
+        val updatedLobbySettings = lobbyValue.getLobbySettings().withSize(value)
         val updatedLobby = lobbyValue.withLobbySettings(updatedLobbySettings)
         lobby = updatedLobby
         return updatedLobby
@@ -64,12 +65,12 @@ object LobbyService {
         val lobbyValue = this.lobby
             ?: throw UpdateLobbyException("command.lobby.set.error.no_lobby")
 
-        if (lobbyValue.lobbySettings.accessType == value) {
+        if (lobbyValue.getLobbySettings().accessType == value) {
             throw UpdateLobbyException("command.lobby.set.error.nothing_changed")
         }
 
         playSetLobbySound(lobbyValue)
-        val updatedLobbySettings = lobbyValue.lobbySettings.withAccessType(value)
+        val updatedLobbySettings = lobbyValue.getLobbySettings().withAccessType(value)
         val updatedLobby = lobbyValue.withLobbySettings(updatedLobbySettings).withoutInvites()
         lobby = updatedLobby
         return updatedLobby
@@ -79,12 +80,12 @@ object LobbyService {
         val lobbyValue = this.lobby
             ?: throw UpdateLobbyException("command.lobby.set.error.no_lobby")
 
-        if (lobbyValue.lobbySettings.gameType == value) {
+        if (lobbyValue.getLobbySettings().gameType == value) {
             throw UpdateLobbyException("command.lobby.set.error.nothing_changed")
         }
 
         playSetLobbySound(lobbyValue)
-        val updatedLobbySettings = lobbyValue.lobbySettings.withGameType(value)
+        val updatedLobbySettings = lobbyValue.getLobbySettings().withGameType(value)
         val updatedLobby = lobbyValue.withLobbySettings(updatedLobbySettings)
         lobby = updatedLobby
         return updatedLobby
@@ -93,94 +94,97 @@ object LobbyService {
     fun playerJoinLobby(playerUuid: UUID, force: Boolean = false): Lobby {
         val lobbyValue = this.lobby
             ?: throw UpdateLobbyException("command.lobby.join.error.no_lobby")
+        val participant = Participant.create(playerUuid)
 
-        if (lobbyValue.participantUuids.contains(playerUuid)) {
+        if (lobbyValue.hasParticipant(participant)) {
             throw UpdateLobbyException("command.lobby.join.error.already_in_lobby")
         }
 
-        if (lobbyValue.participantUuids.size >= lobbyValue.lobbySettings.size) {
+        if (lobbyValue.getParticipantAmount() >= lobbyValue.getLobbySettings().size) {
             throw UpdateLobbyException("command.lobby.join.error.lobby_full")
         }
 
-        if (!force && lobbyValue.lobbySettings.accessType == LobbyAccessType.INVITE_ONLY) {
+        if (!force && lobbyValue.getLobbySettings().accessType == LobbyAccessType.INVITE_ONLY) {
             return acceptLobbyInvitation(playerUuid)
         }
 
-        val updatedLobby = lobbyValue.withPlayer(playerUuid)
+        val updatedLobby = lobbyValue.withParticipant(participant)
         lobby = updatedLobby
         playPlayerJoinsLobbySound(updatedLobby)
         return updatedLobby
     }
 
-    fun playerLeaveLobby(playerUuid: UUID): Lobby {
+    fun participantLeaveLobby(participant: Participant): Lobby {
         val lobbyValue = this.lobby
             ?: throw UpdateLobbyException("command.lobby.leave.error.no_lobby")
 
-        if (!lobbyValue.participantUuids.contains(playerUuid)) {
+        if (!lobbyValue.hasParticipant(participant)) {
             throw UpdateLobbyException("command.lobby.leave.error.not_in_lobby")
         }
 
         playPlayerLeavesLobbySound(lobbyValue)
-        val updatedLobby = lobbyValue.withoutPlayer(playerUuid)
+        val updatedLobby = lobbyValue.withoutParticipant(participant)
         lobby = updatedLobby
         return updatedLobby
     }
 
-    fun playerKickLobby(kickeeUuid: UUID): Lobby {
+    fun kickParticipantFromLobby(kickedParticipant: Participant): Lobby {
         val lobbyValue = this.lobby
             ?: throw UpdateLobbyException("command.lobby.kick.error.no_lobby")
 
-        if (!lobbyValue.participantUuids.contains(kickeeUuid)) {
+        if (!lobbyValue.hasParticipant(kickedParticipant)) {
             throw UpdateLobbyException("command.lobby.kick.error.not_in_lobby")
         }
 
         playPlayerKickedFromLobbySound(lobbyValue)
-        val updatedLobby = lobbyValue.withoutPlayer(kickeeUuid)
+        val updatedLobby = lobbyValue.withoutParticipant(kickedParticipant)
         lobby = updatedLobby
         return updatedLobby
     }
 
-    fun createLobbyInvitation(inviter: UUID, invitee: UUID): Lobby {
+    fun createLobbyInvitation(inviterParticipant: Participant, invitedPlayerUuid: UUID): Lobby {
         val lobbyValue = this.lobby
             ?: throw UpdateLobbyException("command.lobby.invite.error.no_lobby")
 
-        if (!lobbyValue.participantUuids.contains(inviter)) {
+        if (!lobbyValue.hasParticipant(inviterParticipant)) {
             throw UpdateLobbyException("command.lobby.invite.error.inviter_not_in_lobby")
         }
 
-        if (inviter == invitee) {
+        if (inviterParticipant == invitedPlayerUuid) {
             throw UpdateLobbyException("command.lobby.invite.error.self_invite")
         }
 
-        if (lobbyValue.participantUuids.contains(invitee)) {
+        val invitedParticipant = Participant.create(invitedPlayerUuid)
+        if (lobbyValue.hasParticipant(invitedParticipant)) {
             throw UpdateLobbyException("command.lobby.invite.error.invitee_already_in_lobby")
         }
 
-        if (lobbyValue.invitations.map { it.inviteeUuid }.contains(invitee)) {
+        if (lobbyValue.getInvitationForPlayer(invitedPlayerUuid) != null) {
             throw UpdateLobbyException("command.lobby.invite.error.invitee_already_invited")
         }
 
-        if (lobbyValue.participantUuids.size >= lobbyValue.lobbySettings.size) {
+        if (lobbyValue.getParticipantAmount() >= lobbyValue.getLobbySettings().size) {
             throw UpdateLobbyException("command.lobby.invite.error.lobby_full")
         }
 
         playCreateInviteSound(lobbyValue)
-        val newInvitation = LobbyInvitation.create(invitee)
+        val newInvitation = LobbyInvitation.create(invitedPlayerUuid)
         val updatedLobby = lobbyValue.withInvite(newInvitation)
         lobby = updatedLobby
 
         return updatedLobby
     }
 
-    fun revokeLobbyInvitation(playerUuid: UUID): Lobby {
+    fun revokeLobbyInvitation(invitedPlayerUuid: UUID): Lobby {
         val lobbyValue = this.lobby
             ?: throw UpdateLobbyException("command.lobby.uninvite.error.no_lobby")
+        val invitedParticipant = Participant.create(invitedPlayerUuid)
 
-        if (lobbyValue.participantUuids.contains(playerUuid)) {
+        if (lobbyValue.hasParticipant(invitedParticipant)) {
             throw UpdateLobbyException("command.lobby.uninvite.error.uninvitee_already_in_lobby")
         }
 
-        val invitation = lobbyValue.invitations.find { it.inviteeUuid == playerUuid }
+        val invitation = lobbyValue.getInvitationForPlayer(invitedPlayerUuid)
             ?: throw UpdateLobbyException("command.lobby.uninvite.error.uninvitee_not_invited")
 
         playRevokeInviteSound(lobbyValue)
@@ -189,35 +193,36 @@ object LobbyService {
         return updatedLobby
     }
 
-    fun acceptLobbyInvitation(playerUuid: UUID): Lobby {
+    fun acceptLobbyInvitation(invitedPlayerUuid: UUID): Lobby {
         val lobbyValue = this.lobby
             ?: throw UpdateLobbyException("command.lobby.invite.accept.error.no_lobby")
 
-        if (lobbyValue.participantUuids.size >= lobbyValue.lobbySettings.size) {
+        if (lobbyValue.getParticipantAmount() >= lobbyValue.getLobbySettings().size) {
             throw UpdateLobbyException("command.lobby.invite.accept.error.lobby_full")
         }
 
-        if (lobbyValue.participantUuids.contains(playerUuid)) {
+        val invitedParticipant = Participant.create(invitedPlayerUuid)
+        if (lobbyValue.hasParticipant(invitedParticipant)) {
             throw UpdateLobbyException("command.lobby.invite.accept.error.already_joined")
         }
 
-        val invitation = lobbyValue.invitations.find { it.inviteeUuid == playerUuid }
+        val invitation = lobbyValue.getInvitationForPlayer(invitedPlayerUuid)
             ?: throw UpdateLobbyException("command.lobby.invite.accept.error.not_invited")
 
-        val updatedLobby = lobbyValue.withoutInvite(invitation).withPlayer(playerUuid)
+        val updatedLobby = lobbyValue.withoutInvite(invitation).withParticipant(invitedParticipant)
         lobby = updatedLobby
         playPlayerJoinsLobbySound(updatedLobby)
         return updatedLobby
     }
 
-    fun declineLobbyInvitation(playerUuid: UUID): Lobby {
+    fun declineLobbyInvitation(invitedPlayerUuid: UUID): Lobby {
         val lobbyValue = this.lobby
             ?: throw UpdateLobbyException("command.lobby.invite.decline.error.no_lobby")
-
-        val invitation = lobbyValue.invitations.find { it.inviteeUuid == playerUuid }
+        val invitation = lobbyValue.getInvitationForPlayer(invitedPlayerUuid)
             ?: throw UpdateLobbyException("command.lobby.invite.decline.error.not_invited")
+        val invitedParticipant = Participant.create(invitedPlayerUuid)
 
-        if (lobbyValue.participantUuids.contains(playerUuid)) {
+        if (lobbyValue.hasParticipant(invitedParticipant)) {
             throw UpdateLobbyException("command.lobby.invite.decline.error.already_joined")
         }
 

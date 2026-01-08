@@ -12,8 +12,8 @@ object QueueEntryCreateMapper {
     fun fromLobby(lobby: Lobby): QueueEntryCreate {
         return QueueEntryCreate(
             serverSlug = Config.getServerSlug(),
-            playerUuids = lobby.participantUuids,
-            gameType = lobby.lobbySettings.gameType,
+            players = lobby.getParticipants().map { QueueEntryPlayerMapper.fromLobby(it) },
+            gameType = lobby.getLobbySettings().gameType,
             transferIP = if (Bukkit.getServer().isAcceptingTransfers && Bukkit.getIp() != "") "${Bukkit.getIp()}:${Bukkit.getPort()}" else null,
         )
     }
@@ -22,7 +22,7 @@ object QueueEntryCreateMapper {
     fun toDto(queueEntryCreate: QueueEntryCreate): QueueEntryCreateDto {
         return QueueEntryCreateDto(
             serverSlug = queueEntryCreate.serverSlug,
-            playerUuids = queueEntryCreate.playerUuids.map { it.toString() },
+            players = queueEntryCreate.players.map { QueueEntryPlayerMapper.toDto(it) },
             gameType = queueEntryCreate.gameType,
             transferIP = queueEntryCreate.transferIP,
         )

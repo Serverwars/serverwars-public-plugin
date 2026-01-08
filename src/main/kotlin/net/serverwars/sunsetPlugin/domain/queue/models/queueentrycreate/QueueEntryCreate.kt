@@ -1,10 +1,10 @@
 package net.serverwars.sunsetPlugin.domain.queue.models.queueentrycreate
 
-import java.util.*
+import net.serverwars.sunsetPlugin.domain.queue.models.queueentryplayer.QueueEntryPlayer
 
 data class QueueEntryCreate(
     val serverSlug: String,
-    val playerUuids: List<UUID>,
+    val players: List<QueueEntryPlayer>,
     val gameType: String,
     val transferIP: String?,
 )

@@ -13,19 +13,19 @@ import org.bukkit.Bukkit
 import java.util.*
 
 data class Lobby(
-    val lobbyUuid: UUID,
-    val participantUuids: List<UUID>,
-    val createdAtTimestamp: Long,
-    val lobbySettings: LobbySettings,
-    val invitations: List<LobbyInvitation>,
+    private val lobbyUuid: UUID,
+    private val participants: List<Participant>,
+    private val createdAtTimestamp: Long,
+    private val lobbySettings: LobbySettings,
+    private val invitations: List<LobbyInvitation>,
 ) {
     companion object {
-        val ALLOWED_LOBBY_SIZES = listOf(1, 3, 5, 10)
+        val ALLOWED_LOBBY_SIZES = 1..10
 
         fun create(lobbySettings: LobbySettings): Lobby {
             return Lobby(
                 lobbyUuid = UUID.randomUUID(),
-                participantUuids = emptyList(),
+                participants = emptyList(),
                 createdAtTimestamp = now(),
                 lobbySettings = lobbySettings,
                 invitations = emptyList(),
@@ -33,16 +33,29 @@ data class Lobby(
         }
     }
 
+    fun hasParticipant(participant: Participant): Boolean = participants
+        .map { it.playerUuid }
+        .contains(participant.playerUuid)
+
+    fun getParticipantAmount() = participants.size
+
+    fun getParticipants(): List<Participant> = participants
+
+    fun getLobbySettings(): LobbySettings = lobbySettings
+
+    fun getInvitationForPlayer(playerUuid: UUID): LobbyInvitation? = invitations
+        .find { it.inviteeUuid == playerUuid }
+
     fun withLobbySettings(lobbySettings: LobbySettings): Lobby {
         return this.copy(lobbySettings = lobbySettings)
     }
 
-    fun withPlayer(playerUuid: UUID): Lobby {
-        return this.copy(participantUuids = this.participantUuids.plus(playerUuid))
+    fun withParticipant(participant: Participant): Lobby {
+        return this.copy(participants = this.participants.plus(participant))
     }
 
-    fun withoutPlayer(playerUuid: UUID): Lobby {
-        return this.copy(participantUuids = this.participantUuids.minus(playerUuid))
+    fun withoutParticipant(participant: Participant): Lobby {
+        return this.copy(participants = this.participants.minus(participant))
     }
 
     fun withInvite(invite: LobbyInvitation): Lobby {
@@ -88,10 +101,8 @@ data class Lobby(
 
             val shouldAutoTransferPlayers = Config.shouldTransferOnMatchReady()
             if (shouldAutoTransferPlayers) {
-                participantUuids.forEach { playerUuid ->
-                    Bukkit.getPlayer(playerUuid)?.let { player ->
-                        Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "transfer $serverSlug.${Config.getServerwarsMinecraftServerIP()} 25565 ${player.name}")
-                    }
+                participants.forEach { (_, name) ->
+                    Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "transfer $serverSlug.${Config.getServerwarsMinecraftServerIP()} 25565 $name")
                 }
             }
 
@@ -100,12 +111,12 @@ data class Lobby(
     }
 
     fun getLobbyAudience(): Audience {
-        return Audience.audience(this.participantUuids.mapNotNull { Bukkit.getPlayer(it) })
+        return Audience.audience(this.participants.mapNotNull { Bukkit.getPlayer(it.playerUuid) })
     }
 
     private fun getLobbyAudienceWithout(uuidsToExclude: Collection<UUID>): Audience {
-        return Audience.audience(this.participantUuids
-            .filterNot { it in uuidsToExclude }
-            .mapNotNull { Bukkit.getPlayer(it) })
+        return Audience.audience(this.participants
+            .filterNot { it.playerUuid in uuidsToExclude }
+            .mapNotNull { Bukkit.getPlayer(it.playerUuid) })
     }
 }

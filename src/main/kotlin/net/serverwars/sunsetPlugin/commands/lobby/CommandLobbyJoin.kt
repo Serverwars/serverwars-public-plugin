@@ -23,7 +23,7 @@ object CommandLobbyJoin {
         try {
             val lobby = LobbyService.playerJoinLobby(joiner.uniqueId)
             joiner.sendTranslatedMessage("command.lobby.join.success")
-            lobby.sendMessage("command.lobby.join.success.notify_lobby", joiner.name, lobby.participantUuids.size, lobby.lobbySettings.size)
+            lobby.sendMessage("command.lobby.join.success.notify_lobby", joiner.name, lobby.getParticipantAmount(), lobby.getLobbySettings().size)
             return Command.SINGLE_SUCCESS
         } catch (error: UpdateLobbyException) {
             joiner.sendTranslatedMessage(error.key, joiner.name)

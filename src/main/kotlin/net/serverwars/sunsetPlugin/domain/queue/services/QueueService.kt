@@ -23,11 +23,11 @@ object QueueService {
 
         val lobby = LobbyService.getLobbyCopy() ?: throw EnterQueueException("command.queue.enter.error.no_lobby")
 
-        if (lobby.participantUuids.size < lobby.lobbySettings.size) {
+        if (lobby.getParticipantAmount() < lobby.getLobbySettings().size) {
             throw EnterQueueException(
                 "command.queue.enter.error.not_enough_players",
-                lobby.participantUuids.size,
-                lobby.lobbySettings.size
+                lobby.getParticipantAmount(),
+                lobby.getLobbySettings().size
             )
         }
 
