@@ -8,6 +8,7 @@ import net.kyori.adventure.text.format.NamedTextColor
 import net.serverwars.sunsetPlugin.Main
 import net.serverwars.sunsetPlugin.domain.queue.exceptions.LeaveQueueException
 import net.serverwars.sunsetPlugin.domain.queue.services.QueueService
+import net.serverwars.sunsetPlugin.domain.server.services.ServerService
 import net.serverwars.sunsetPlugin.translations.TranslationManager
 import net.serverwars.sunsetPlugin.util.runAsync
 
@@ -21,6 +22,7 @@ object CommandConfigReload {
         }
         Main.inst.reloadConfig()
         TranslationManager.loadTranslations()
+        ServerService.reloadServer()
         ctx.source.sender.sendMessage(Component.text("Config reloaded.", NamedTextColor.GRAY))
         return Command.SINGLE_SUCCESS
     }

@@ -1,6 +1,7 @@
 package net.serverwars.sunsetPlugin
 
 import net.serverwars.sunsetPlugin.domain.gameserver.services.GameServerService
+import net.serverwars.sunsetPlugin.domain.server.services.ServerService
 import net.serverwars.sunsetPlugin.listeners.EventListenerManager
 import net.serverwars.sunsetPlugin.translations.TranslationManager
 import org.bukkit.plugin.java.JavaPlugin
@@ -25,6 +26,9 @@ class Main : JavaPlugin() {
 
         // Fetch available Game server types
         GameServerService.initialize()
+
+        // Fetch server info
+        ServerService.reloadServer()
     }
 
 }

@@ -3,8 +3,8 @@
 # The language file in "./lang" containing chat messages sent by this plugin.
 locale: en_US
 
-# The short name of your server, registered on www.serverwars.net
-server_slug: awesomeserver
+# The secret code of your server, found on www.serverwars.net
+server_secret: my-secret
 
 # Triggered when a match is found.
 #   true: players are automatically redirected to the game server once it is ready.

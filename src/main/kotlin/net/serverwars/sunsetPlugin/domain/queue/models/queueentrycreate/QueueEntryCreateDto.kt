@@ -5,7 +5,7 @@ import net.serverwars.sunsetPlugin.domain.queue.models.queueentryplayer.QueueEnt
 
 @Serializable
 data class QueueEntryCreateDto(
-    val serverSlug: String,
+    val serverSecret: String,
     val players: List<QueueEntryPlayerDto>,
     val gameType: String,
     val transferIP: String?,

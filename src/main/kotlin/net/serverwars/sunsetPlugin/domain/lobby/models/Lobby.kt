@@ -4,6 +4,7 @@ import net.kyori.adventure.audience.Audience
 import net.serverwars.sunsetPlugin.config.Config
 import net.serverwars.sunsetPlugin.domain.lobby.services.LobbyService
 import net.serverwars.sunsetPlugin.domain.match.services.MatchDataAccess
+import net.serverwars.sunsetPlugin.domain.server.services.ServerService
 import net.serverwars.sunsetPlugin.translations.sendTranslatedActionBarMessage
 import net.serverwars.sunsetPlugin.translations.sendTranslatedMessage
 import net.serverwars.sunsetPlugin.util.now
@@ -96,7 +97,7 @@ data class Lobby(
 
     fun sendParticipantsToMatch() {
         runSync {
-            val serverSlug = Config.getServerSlug()
+            val serverSlug = ServerService.getServerSlug()
             sendMessage("queue.success.match_ready", serverSlug)
 
             val shouldAutoTransferPlayers = Config.shouldTransferOnMatchReady()

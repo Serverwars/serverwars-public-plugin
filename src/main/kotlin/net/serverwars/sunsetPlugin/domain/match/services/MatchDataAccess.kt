@@ -20,6 +20,7 @@ import net.serverwars.sunsetPlugin.domain.match.models.matchstatus.MatchStatus
 import net.serverwars.sunsetPlugin.domain.match.models.matchstatus.MatchStatusEventDto
 import net.serverwars.sunsetPlugin.domain.match.services.mappers.MatchListMapper
 import net.serverwars.sunsetPlugin.domain.match.services.mappers.MatchStatusEventMapper
+import net.serverwars.sunsetPlugin.domain.server.services.ServerService
 import net.serverwars.sunsetPlugin.util.rest.HttpClient
 import net.serverwars.sunsetPlugin.util.rest.exceptions.ApiException
 import net.serverwars.sunsetPlugin.util.rest.parseSSEDto
@@ -33,7 +34,7 @@ object MatchDataAccess {
         return runCatching {
             val response = HttpClient.instance.get(url) {
                 parameters {
-                    parameter("filter_server_slug", Config.getServerSlug())
+                    parameter("filter_server_slug", ServerService.getServerSlug())
                     parameter("filter_in_session", true)
                 }
             }

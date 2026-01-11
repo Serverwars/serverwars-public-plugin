@@ -33,9 +33,9 @@ object Config {
             ?: throw ConfigInvalidValueException("Key 'locale' has an invalid value in the plugin config.")
     }
 
-    fun getServerSlug(): String {
-        return Main.inst.config.getString("server_slug")
-            ?: throw ConfigKeyNotFoundException("Could not find key 'server_slug' in plugin config.")
+    fun getServerSecret(): String {
+        return Main.inst.config.getString("server_secret")
+            ?: throw ConfigKeyNotFoundException("Could not find key 'server_secret' in plugin config.")
     }
 
     fun shouldTransferOnMatchReady(): Boolean {
