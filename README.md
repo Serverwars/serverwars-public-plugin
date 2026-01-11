@@ -16,7 +16,7 @@
 With this plugin, your server can:
 - Create a lobby
 - Enter the matchmaking queue
-- Compete against other servers through the Serverwars network
+- Compete against other servers!
 
 ## Accept player transfers
 
