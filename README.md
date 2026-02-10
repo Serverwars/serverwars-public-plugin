@@ -13,16 +13,42 @@
 
 ## Serverwars
 
+Team up with players from your server and war against other servers through a series of minigames. 
+
 With this plugin, your server can:
 - Create a lobby
 - Enter the matchmaking queue
 - Compete against other servers!
 
-## Accept player transfers
+## How it works
 
-Upon starting a match with another server, this plugin automatically redirects players from your server to the Serverwars network.
+1. Players join a lobby together.
+2. The lobby enters the Serverwars matchmaking queue.
+3. The plugin searches for another server to play against.
+4. When a match is found, a Serverwars game-server is started automatically. This game-server is a fair and isolated environment where players from both servers can compete against each other.
+5. Players from both servers are temporarily moved to this server to play the game.
+6. Once the game is over, everyone is sent back to their original servers.
 
-When a match is finished, an attempt is made to send the players back to your server. However, your server disables this by default. To fix this, set `accepts-transfers=true` in your `server.properties`.
+## What does this plugin do?
+
+This plugin enables players from your server to team up and enter the matchmaking queue.
+
+Commands to create a lobby of players:
+- `/serverwars lobby create`
+- `/serverwars lobby invite`
+- `/serverwars lobby join`
+- `/serverwars lobby leave`
+- `/serverwars lobby kick`
+
+Commands to enter and leave the match making queue:
+- `/serverwars queue enter`
+- `/serverwars queue leave`
+
+Commands related to an active game server:
+- `/serverwars match enter`
+
+And extra commands like:
+- `/serverwars config reload`
 
 ## Installation
 
@@ -31,3 +57,5 @@ Paper 1.21.11 with Java 24 (or higher) is required. Plugin should also work on P
 ## Support
 
 We are mostly active on Discord so the best way to get support is joining our [Discord Server](https://discord.gg/qzEstJKn7b). Also, it is okay to report bugs here on GitHub.
+
+Find more info on: [https://serverwars.net/](https://serverwars.net/)
