@@ -1,6 +1,7 @@
 package net.serverwars.sunsetPlugin.domain.lobby.models
 
 import net.serverwars.sunsetPlugin.domain.lobby.exceptions.CreateParticipantException
+import net.serverwars.sunsetPlugin.util.isKnownPlayer
 import org.bukkit.Bukkit
 import java.util.UUID
 
@@ -11,7 +12,7 @@ data class Participant(
     companion object {
         fun create(playerUuid: UUID): Participant {
             val player = Bukkit.getOfflinePlayer(playerUuid)
-            if (player.hasPlayedBefore()) {
+            if (isKnownPlayer(player)) {
                 return Participant(
                     playerUuid = playerUuid,
                     name = player.name!!
