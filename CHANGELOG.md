@@ -4,6 +4,7 @@
 
 ### Fixed
 * Change invite button icons to Unicode escapes.
+* Fix player not found error when creating a lobby participant.
 
 ## 1.0.1 (2026-02-11)
 
