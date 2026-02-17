@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.2
+
+### Fixed
+* Change invite button icons to Unicode escapes.
+
 ## 1.0.1 (2026-02-11)
 
 ### Fixed
