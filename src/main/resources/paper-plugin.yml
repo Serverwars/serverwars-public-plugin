@@ -1,5 +1,5 @@
 name: Serverwars
-version: '1.0.1'
+version: '1.0.2'
 main: net.serverwars.sunsetPlugin.Main
 api-version: '1.21'
 authors: [ Wout ]
