@@ -2,6 +2,9 @@
 
 ## 1.0.2
 
+### Changed
+* Lower required java version from 24 to 21.
+
 ### Fixed
 * Change invite button icons to Unicode escapes.
 * Fix player not found error when creating a lobby participant.
