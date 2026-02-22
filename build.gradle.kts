@@ -36,7 +36,7 @@ dependencies {
     implementation("net.kyori:adventure-text-minimessage:4.24.0")
 }
 
-val targetJavaVersion = 24
+val targetJavaVersion = 21
 kotlin {
     jvmToolchain(targetJavaVersion)
 }
