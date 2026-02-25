@@ -34,7 +34,7 @@ object MatchDataAccess {
         return runCatching {
             val response = HttpClient.instance.get(url) {
                 parameters {
-                    parameter("filter_server_slug", ServerService.getServerSlug())
+                    parameter("filter_server_uuid", ServerService.getServerUuid().toString())
                     parameter("filter_in_session", true)
                 }
             }

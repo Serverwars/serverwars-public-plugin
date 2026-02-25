@@ -1,6 +1,11 @@
 # Changelog
 
-## 1.0.2
+## 1.0.3
+
+### Fixed
+* Fix checking if server is already in a match when entering queue.
+
+## 1.0.2 (2026-02-25)
 
 ### Changed
 * Lower required java version from 24 to 21.
