@@ -7,7 +7,6 @@ import io.papermc.paper.command.brigadier.argument.ArgumentTypes
 import io.papermc.paper.command.brigadier.argument.resolvers.selector.PlayerSelectorArgumentResolver
 import net.serverwars.sunsetPlugin.commands.arguments.LobbyAccessTypeArgumentType
 import net.serverwars.sunsetPlugin.commands.arguments.LobbyGameTypeArgumentType
-import net.serverwars.sunsetPlugin.commands.arguments.LobbySizeArgumentType
 import net.serverwars.sunsetPlugin.commands.config.CommandConfigReload
 import net.serverwars.sunsetPlugin.commands.lobby.*
 import net.serverwars.sunsetPlugin.commands.match.CommandMatchEnter
@@ -20,6 +19,8 @@ object CommandServerwars {
     private fun hasAnyChildPermission(sender: CommandSender, vararg perms: String): Boolean {
         return perms.any { sender.hasPermission(it) }
     }
+
+    val aliases = listOf("sw")
 
     val command: LiteralCommandNode<CommandSourceStack> = Commands.literal("serverwars")
         // CONFIG COMMAND
@@ -37,7 +38,6 @@ object CommandServerwars {
                 hasAnyChildPermission(
                     it.sender,
                     "serverwars.commands.lobby.create",
-                    "serverwars.commands.lobby.set.size",
                     "serverwars.commands.lobby.set.access",
                     "serverwars.commands.lobby.invite",
                     "serverwars.commands.lobby.uninvite",
@@ -49,16 +49,13 @@ object CommandServerwars {
             }
             .then(Commands.literal("create")
                 .requires { it.sender.hasPermission("serverwars.commands.lobby.create") }
-                .then(Commands.argument("size", LobbySizeArgumentType)
-                    .then(Commands.argument("access type", LobbyAccessTypeArgumentType)
-                        .then(Commands.argument("game type", LobbyGameTypeArgumentType)
-                            .executes { CommandLobbyCreate.run(
-                                ctx = it,
-                                size = LobbySizeArgumentType.get(it, "size"),
-                                accessType = LobbyAccessTypeArgumentType.get(it, "access type"),
-                                gameType = LobbyGameTypeArgumentType.get(it, "game type")
-                            ) }
-                        )
+                .then(Commands.argument("access type", LobbyAccessTypeArgumentType)
+                    .then(Commands.argument("game type", LobbyGameTypeArgumentType)
+                        .executes { CommandLobbyCreate.run(
+                            ctx = it,
+                            accessType = LobbyAccessTypeArgumentType.get(it, "access type"),
+                            gameType = LobbyGameTypeArgumentType.get(it, "game type")
+                        ) }
                     )
                 )
             )
@@ -67,20 +64,10 @@ object CommandServerwars {
                     hasAnyChildPermission(
                         it.sender,
                         "serverwars.commands.lobby.set",
-                        "serverwars.commands.lobby.set.size",
                         "serverwars.commands.lobby.set.access",
                         "serverwars.commands.lobby.set.game",
                     )
                 }
-                .then(Commands.literal("size")
-                    .requires { it.sender.hasPermission("serverwars.commands.lobby.set.size") }
-                    .then(Commands.argument("size", LobbySizeArgumentType)
-                        .executes { CommandLobbySetSize.run(
-                            ctx = it,
-                            size = LobbySizeArgumentType.get(it, "size")
-                        ) }
-                    )
-                )
                 .then(Commands.literal("access")
                     .requires { it.sender.hasPermission("serverwars.commands.lobby.set.access") }
                     .then(Commands.argument("access type", LobbyAccessTypeArgumentType)

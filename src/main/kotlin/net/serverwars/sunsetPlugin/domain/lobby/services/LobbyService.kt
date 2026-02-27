@@ -4,15 +4,11 @@ import net.serverwars.sunsetPlugin.domain.lobby.exceptions.CreateLobbyException
 import net.serverwars.sunsetPlugin.domain.lobby.exceptions.DeleteLobbyException
 import net.serverwars.sunsetPlugin.domain.lobby.exceptions.SendLobbyToMatchException
 import net.serverwars.sunsetPlugin.domain.lobby.exceptions.UpdateLobbyException
-import net.serverwars.sunsetPlugin.domain.lobby.models.Lobby
-import net.serverwars.sunsetPlugin.domain.lobby.models.LobbyAccessType
-import net.serverwars.sunsetPlugin.domain.lobby.models.LobbyInvitation
-import net.serverwars.sunsetPlugin.domain.lobby.models.LobbySettings
-import net.serverwars.sunsetPlugin.domain.lobby.models.Participant
+import net.serverwars.sunsetPlugin.domain.lobby.models.*
 import net.serverwars.sunsetPlugin.domain.queue.exceptions.LeaveQueueException
 import net.serverwars.sunsetPlugin.domain.queue.services.QueueService
 import net.serverwars.sunsetPlugin.util.*
-import java.util.UUID
+import java.util.*
 import kotlin.properties.Delegates
 
 object LobbyService {
@@ -26,39 +22,18 @@ object LobbyService {
         }
     }
 
-    fun createLobby(size: Int, accessType: LobbyAccessType, gameType: String): Lobby {
+    fun createLobby(accessType: LobbyAccessType, gameType: String): Lobby {
         if (lobby != null) {
             throw CreateLobbyException("command.lobby.create.error.too_many_existing_lobbies")
         }
 
-        if (!Lobby.ALLOWED_LOBBY_SIZES.contains(size)) {
-            throw CreateLobbyException("command.lobby.create.error.invalid_size", size)
-        }
-
-        val newLobbySettings = LobbySettings.create(size, accessType, gameType)
+        val newLobbySettings = LobbySettings.create(accessType, gameType)
         val newLobby = Lobby.create(newLobbySettings)
         this.lobby = newLobby
 
+        LobbyStatusNotifierService.startShowingLobbyStatus()
+
         return newLobby
-    }
-
-    fun updateLobbySize(value: Int): Lobby {
-        val lobbyValue = this.lobby
-            ?: throw UpdateLobbyException("command.lobby.set.error.no_lobby")
-
-        if (!Lobby.ALLOWED_LOBBY_SIZES.contains(value)) {
-            throw UpdateLobbyException("command.lobby.error.invalid_size", value)
-        }
-
-        if (lobbyValue.getLobbySettings().size == value) {
-            throw UpdateLobbyException("command.lobby.set.error.nothing_changed")
-        }
-
-        playSetLobbySound(lobbyValue)
-        val updatedLobbySettings = lobbyValue.getLobbySettings().withSize(value)
-        val updatedLobby = lobbyValue.withLobbySettings(updatedLobbySettings)
-        lobby = updatedLobby
-        return updatedLobby
     }
 
     fun updateLobbyAccessType(value: LobbyAccessType): Lobby {
@@ -100,7 +75,7 @@ object LobbyService {
             throw UpdateLobbyException("command.lobby.join.error.already_in_lobby")
         }
 
-        if (lobbyValue.getParticipantAmount() >= lobbyValue.getLobbySettings().size) {
+        if (lobbyValue.getParticipantAmount() >= Lobby.MAX_LOBBY_SIZE) {
             throw UpdateLobbyException("command.lobby.join.error.lobby_full")
         }
 
@@ -163,7 +138,7 @@ object LobbyService {
             throw UpdateLobbyException("command.lobby.invite.error.invitee_already_invited")
         }
 
-        if (lobbyValue.getParticipantAmount() >= lobbyValue.getLobbySettings().size) {
+        if (lobbyValue.getParticipantAmount() >= Lobby.MAX_LOBBY_SIZE) {
             throw UpdateLobbyException("command.lobby.invite.error.lobby_full")
         }
 
@@ -197,7 +172,7 @@ object LobbyService {
         val lobbyValue = this.lobby
             ?: throw UpdateLobbyException("command.lobby.invite.accept.error.no_lobby")
 
-        if (lobbyValue.getParticipantAmount() >= lobbyValue.getLobbySettings().size) {
+        if (lobbyValue.getParticipantAmount() >= Lobby.MAX_LOBBY_SIZE) {
             throw UpdateLobbyException("command.lobby.invite.accept.error.lobby_full")
         }
 
@@ -232,6 +207,8 @@ object LobbyService {
     }
 
     fun deleteLobby(): Lobby {
+        LobbyStatusNotifierService.stopShowingLobbyStatus()
+
         val deletedLobby = this.lobby ?: throw DeleteLobbyException("command.lobby.delete.error.no_lobby")
         this.lobby = null
         return deletedLobby

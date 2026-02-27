@@ -13,9 +13,9 @@ import org.bukkit.entity.Player
 
 object CommandLobbyCreate {
 
-    fun run(ctx: CommandContext<CommandSourceStack>, size: Int, accessType: LobbyAccessType, gameType: String): Int {
+    fun run(ctx: CommandContext<CommandSourceStack>, accessType: LobbyAccessType, gameType: String): Int {
         try {
-            LobbyService.createLobby(size = size, accessType = accessType, gameType = gameType)
+            LobbyService.createLobby(accessType = accessType, gameType = gameType)
             ctx.source.sender.sendTranslatedMessage("command.lobby.create.success")
 
             if (accessType == LobbyAccessType.OPEN) {

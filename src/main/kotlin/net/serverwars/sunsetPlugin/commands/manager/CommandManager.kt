@@ -7,6 +7,6 @@ import net.serverwars.sunsetPlugin.commands.CommandServerwars
 object CommandManager {
 
     fun registerCommands(commands: ReloadableRegistrarEvent<Commands>) {
-        commands.registrar().register(CommandServerwars.command)
+        commands.registrar().register(CommandServerwars.command, null, CommandServerwars.aliases)
     }
 }

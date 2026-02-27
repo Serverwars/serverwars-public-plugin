@@ -4,6 +4,7 @@ import com.mojang.brigadier.Command
 import com.mojang.brigadier.context.CommandContext
 import io.papermc.paper.command.brigadier.CommandSourceStack
 import net.serverwars.sunsetPlugin.domain.lobby.exceptions.UpdateLobbyException
+import net.serverwars.sunsetPlugin.domain.lobby.models.Lobby
 import net.serverwars.sunsetPlugin.domain.lobby.models.Participant
 import net.serverwars.sunsetPlugin.domain.lobby.services.LobbyService
 import net.serverwars.sunsetPlugin.translations.sendTranslatedMessage
@@ -15,7 +16,7 @@ object CommandLobbyKick {
         try {
             val lobby = LobbyService.kickParticipantFromLobby(Participant(kicked.uniqueId, kicked.name))
             ctx.source.sender.sendTranslatedMessage("command.lobby.kick.success", kicked.name)
-            lobby.sendMessage("command.lobby.kick.success.notify_lobby", kicked.name, lobby.getParticipantAmount(), lobby.getLobbySettings().size)
+            lobby.sendMessage("command.lobby.kick.success.notify_lobby", kicked.name, lobby.getParticipantAmount(), Lobby.MAX_LOBBY_SIZE)
             kicked.sendTranslatedMessage("command.lobby.kick.success.notify_kickee")
             return Command.SINGLE_SUCCESS
         } catch (error: UpdateLobbyException) {

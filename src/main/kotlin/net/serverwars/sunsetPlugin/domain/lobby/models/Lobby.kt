@@ -22,16 +22,16 @@ data class Lobby(
 ) {
     companion object {
         val ALLOWED_LOBBY_SIZES = 1..10
+        val MAX_LOBBY_SIZE = ALLOWED_LOBBY_SIZES.max()
+        val MIN_LOBBY_SIZE = ALLOWED_LOBBY_SIZES.min()
 
-        fun create(lobbySettings: LobbySettings): Lobby {
-            return Lobby(
-                lobbyUuid = UUID.randomUUID(),
-                participants = emptyList(),
-                createdAtTimestamp = now(),
-                lobbySettings = lobbySettings,
-                invitations = emptyList(),
-            )
-        }
+        fun create(lobbySettings: LobbySettings) = Lobby(
+            lobbyUuid = UUID.randomUUID(),
+            participants = emptyList(),
+            createdAtTimestamp = now(),
+            lobbySettings = lobbySettings,
+            invitations = emptyList(),
+        )
     }
 
     fun hasParticipant(participant: Participant): Boolean = participants
@@ -102,8 +102,8 @@ data class Lobby(
 
             val shouldAutoTransferPlayers = Config.shouldTransferOnMatchReady()
             if (shouldAutoTransferPlayers) {
-                participants.forEach { (_, name) ->
-                    Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "transfer $serverSlug.${Config.getServerwarsMinecraftServerIP()} 25565 $name")
+                participants.forEach { participant ->
+                    Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "transfer $serverSlug.${Config.getServerwarsMinecraftServerIP()} 25565 ${participant.name}")
                 }
             }
 

@@ -1,6 +1,8 @@
 package net.serverwars.sunsetPlugin.domain.queue.services
 
+import net.serverwars.sunsetPlugin.domain.lobby.models.Lobby
 import net.serverwars.sunsetPlugin.domain.lobby.services.LobbyService
+import net.serverwars.sunsetPlugin.domain.lobby.services.LobbyStatusNotifierService
 import net.serverwars.sunsetPlugin.domain.match.services.MatchService
 import net.serverwars.sunsetPlugin.domain.queue.exceptions.EnterQueueException
 import net.serverwars.sunsetPlugin.domain.queue.exceptions.LeaveQueueException
@@ -23,11 +25,11 @@ object QueueService {
 
         val lobby = LobbyService.getLobbyCopy() ?: throw EnterQueueException("command.queue.enter.error.no_lobby")
 
-        if (lobby.getParticipantAmount() < lobby.getLobbySettings().size) {
+        if (lobby.getParticipantAmount() < Lobby.MIN_LOBBY_SIZE) {
             throw EnterQueueException(
                 "command.queue.enter.error.not_enough_players",
                 lobby.getParticipantAmount(),
-                lobby.getLobbySettings().size
+                Lobby.MIN_LOBBY_SIZE
             )
         }
 
@@ -50,8 +52,9 @@ object QueueService {
         } catch (_: ApiException) {
             throw EnterQueueException("command.queue.enter.error.api_exception")
         }
-        lobby.sendMessage("command.queue.enter.success")
+        lobby.sendMessage("command.queue.enter.success.notify_lobby")
         playEnterQueueSound(lobby)
+        LobbyStatusNotifierService.stopShowingLobbyStatus()
     }
 
     suspend fun leaveQueue() {
@@ -64,8 +67,9 @@ object QueueService {
             QueueDataAccess.leaveQueue(queueUuidCopy)
 
             LobbyService.getLobbyCopy()?.let {
-                it.sendMessage("command.queue.leave.success")
+                it.sendMessage("command.queue.leave.success.notify_lobby")
                 playLeaveQueueSound(it)
+                LobbyStatusNotifierService.startShowingLobbyStatus()
             }
         } catch (_: ApiException) {
             throw LeaveQueueException("command.queue.leave.error.api_exception")

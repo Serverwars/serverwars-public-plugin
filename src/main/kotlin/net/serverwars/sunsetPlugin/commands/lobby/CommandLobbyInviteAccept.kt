@@ -4,6 +4,7 @@ import com.mojang.brigadier.Command
 import com.mojang.brigadier.context.CommandContext
 import io.papermc.paper.command.brigadier.CommandSourceStack
 import net.serverwars.sunsetPlugin.domain.lobby.exceptions.UpdateLobbyException
+import net.serverwars.sunsetPlugin.domain.lobby.models.Lobby
 import net.serverwars.sunsetPlugin.domain.lobby.services.LobbyService
 import net.serverwars.sunsetPlugin.translations.sendTranslatedMessage
 import org.bukkit.entity.Player
@@ -23,7 +24,7 @@ object CommandLobbyInviteAccept {
         try {
             val lobby = LobbyService.acceptLobbyInvitation(invitee.uniqueId)
             invitee.sendTranslatedMessage("command.lobby.invite.accept.success")
-            lobby.sendMessageExcluding(invitee.uniqueId, "command.lobby.invite.accept.success.notify_lobby", invitee.name, lobby.getParticipantAmount(), lobby.getLobbySettings().size)
+            lobby.sendMessageExcluding(invitee.uniqueId, "command.lobby.invite.accept.success.notify_lobby", invitee.name, lobby.getParticipantAmount(), Lobby.MAX_LOBBY_SIZE)
             return Command.SINGLE_SUCCESS
         } catch (error: UpdateLobbyException) {
             invitee.sendTranslatedMessage(error.key, invitee.name)

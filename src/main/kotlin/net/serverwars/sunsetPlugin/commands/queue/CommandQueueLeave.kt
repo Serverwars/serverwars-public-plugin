@@ -13,6 +13,7 @@ object CommandQueueLeave {
     fun run(ctx: CommandContext<CommandSourceStack>): Int {
         runAsync {
             try {
+                ctx.source.sender.sendTranslatedMessage("command.queue.leaving")
                 QueueService.leaveQueue()
             } catch(error: LeaveQueueException) {
                 ctx.source.sender.sendTranslatedMessage(error.key, *error.args)
