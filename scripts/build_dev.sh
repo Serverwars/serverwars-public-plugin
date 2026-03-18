@@ -12,4 +12,4 @@ echo "[SCRIPT] Building plugin jar..."
 gradle -p .. clean build
 echo "[SCRIPT] Built"
 
-echo "[SCRIPT] ✅  Public plugin build script successful at '$BUILD_DESTINATION_DIRECTORY'"
+echo "[SCRIPT] ✅  Public plugin build script successful at '$BUILD_DESTINATION_DIRECTORIES'"

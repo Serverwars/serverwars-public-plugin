@@ -50,7 +50,28 @@ tasks.processResources {
 
 tasks.shadowJar {
     archiveFileName.set("Serverwars-${project.version}.jar")
-    destinationDirectory = file("${System.getenv("BUILD_DESTINATION_DIRECTORY")}")
+
+    val envPaths = System.getenv("BUILD_DESTINATION_DIRECTORIES") ?: ""
+    val pathList = envPaths.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+
+    // Set the primary destination to the first directory in the list
+    if (pathList.isNotEmpty()) {
+        destinationDirectory = file(pathList[0])
+    }
+
+    // After the JAR is created, copy it to the remaining directories
+    doLast {
+        if (pathList.size > 1) {
+            val jarFile = archiveFile.get().asFile
+            pathList.drop(1).forEach { path ->
+                println("Copying JAR to additional location: $path")
+                copy {
+                    from(jarFile)
+                    into(file(path))
+                }
+            }
+        }
+    }
 }
 
 tasks.build {
