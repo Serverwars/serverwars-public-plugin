@@ -10,11 +10,12 @@ object QueueEntryCreateMapper {
 
     // From lobby service
     fun fromLobby(lobby: Lobby): QueueEntryCreate {
+        val ip = Config.getServerIp()
         return QueueEntryCreate(
             serverSecret = Config.getServerSecret(),
             players = lobby.getParticipants().map { QueueEntryPlayerMapper.fromLobby(it) },
             gameType = lobby.getLobbySettings().gameType,
-            transferIP = if (Bukkit.getServer().isAcceptingTransfers && Bukkit.getIp() != "") "${Bukkit.getIp()}:${Bukkit.getPort()}" else null,
+            transferIP = if (Bukkit.getServer().isAcceptingTransfers && ip != null) "$ip:${Bukkit.getPort()}" else null,
         )
     }
 

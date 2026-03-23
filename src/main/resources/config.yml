@@ -10,3 +10,9 @@ server_secret: my-secret
 #   true: players are automatically redirected to the game server once it is ready.
 #   false: players have to manually join the game server.
 transfer_on_match_ready: true
+
+# Used to transfer players back to your server after a game.
+# To make this work, make sure "accept-transfers" is set to "true" in your server.properties file.
+#   IP_FROM_SERVER_PROPERTIES: read the ip from your server.properties file.
+#   any other string: provide an IP directly
+server_ip: IP_FROM_SERVER_PROPERTIES

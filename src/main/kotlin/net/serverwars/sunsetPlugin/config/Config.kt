@@ -4,6 +4,7 @@ import net.serverwars.sunsetPlugin.Main
 import net.serverwars.sunsetPlugin.config.exceptions.ConfigInvalidValueException
 import net.serverwars.sunsetPlugin.config.exceptions.ConfigKeyNotFoundException
 import net.serverwars.sunsetPlugin.translations.SupportedLocale
+import org.bukkit.Bukkit
 import java.util.*
 
 object Config {
@@ -40,5 +41,16 @@ object Config {
 
     fun shouldTransferOnMatchReady(): Boolean {
         return Main.inst.config.getBoolean("transfer_on_match_ready", true)
+    }
+
+    fun getServerIp(): String? {
+        var ip = Main.inst.config.getString("server_ip")
+            ?: throw ConfigKeyNotFoundException("Could not find key 'server_ip' in plugin config.")
+        if (ip == "IP_FROM_SERVER_PROPERTIES") {
+            ip = Bukkit.getIp()
+            return if (ip == "") null else ip
+        } else {
+            return ip
+        }
     }
 }

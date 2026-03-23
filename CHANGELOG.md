@@ -1,6 +1,13 @@
 # Changelog
 
-## 1.1.0
+## 1.2.0
+
+This update contains changes to the config file. To get the most up-to-date default files, remove your local `config.yml` file.
+
+### Added
+* Added `server_ip` config option used to transfer players back after a game has finished.  
+
+## 1.1.0 (2026-02-27)
 
 This update contains changes to the translation files. To get the most up-to-date default files, remove your local `plugins/Serverwars/lang` folder.
 
