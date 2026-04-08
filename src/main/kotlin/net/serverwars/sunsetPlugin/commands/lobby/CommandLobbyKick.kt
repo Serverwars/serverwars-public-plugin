@@ -3,25 +3,19 @@ package net.serverwars.sunsetPlugin.commands.lobby
 import com.mojang.brigadier.Command
 import com.mojang.brigadier.context.CommandContext
 import io.papermc.paper.command.brigadier.CommandSourceStack
-import net.serverwars.sunsetPlugin.domain.lobby.exceptions.UpdateLobbyException
-import net.serverwars.sunsetPlugin.domain.lobby.models.Lobby
-import net.serverwars.sunsetPlugin.domain.lobby.models.Participant
-import net.serverwars.sunsetPlugin.domain.lobby.services.LobbyService
-import net.serverwars.sunsetPlugin.translations.sendTranslatedMessage
+import net.serverwars.sunsetPlugin.domain.lobby.models.operations.LobbyKickOperation
 import org.bukkit.entity.Player
 
 object CommandLobbyKick {
 
     fun run(ctx: CommandContext<CommandSourceStack>, kicked: Player): Int {
-        try {
-            val lobby = LobbyService.kickParticipantFromLobby(Participant(kicked.uniqueId, kicked.name))
-            ctx.source.sender.sendTranslatedMessage("command.lobby.kick.success", kicked.name)
-            lobby.sendMessage("command.lobby.kick.success.notify_lobby", kicked.name, lobby.getParticipantAmount(), Lobby.MAX_LOBBY_SIZE)
-            kicked.sendTranslatedMessage("command.lobby.kick.success.notify_kickee")
-            return Command.SINGLE_SUCCESS
-        } catch (error: UpdateLobbyException) {
-            ctx.source.sender.sendTranslatedMessage(error.key, kicked.name)
-            return 0
-        }
+        val operation = LobbyKickOperation(
+            audience = ctx.source.sender,
+            executor = ctx.source.sender as? Player,
+            kicked = kicked
+        )
+        val success = operation.execute()
+
+        return if (success) Command.SINGLE_SUCCESS else 0
     }
 }

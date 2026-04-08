@@ -3,37 +3,25 @@ package net.serverwars.sunsetPlugin.commands.lobby
 import com.mojang.brigadier.Command
 import com.mojang.brigadier.context.CommandContext
 import io.papermc.paper.command.brigadier.CommandSourceStack
-import net.kyori.adventure.audience.Audience
-import net.serverwars.sunsetPlugin.domain.lobby.exceptions.CreateLobbyException
+import net.serverwars.sunsetPlugin.domain.gameservertype.models.gameservertype.GameServerType
 import net.serverwars.sunsetPlugin.domain.lobby.models.LobbyAccessType
-import net.serverwars.sunsetPlugin.domain.lobby.services.LobbyService
-import net.serverwars.sunsetPlugin.translations.sendTranslatedMessage
-import org.bukkit.Bukkit
+import net.serverwars.sunsetPlugin.domain.lobby.models.LobbySettings
+import net.serverwars.sunsetPlugin.domain.lobby.models.operations.LobbyCreateOperation
 import org.bukkit.entity.Player
 
 object CommandLobbyCreate {
 
-    fun run(ctx: CommandContext<CommandSourceStack>, accessType: LobbyAccessType, gameType: String): Int {
-        try {
-            LobbyService.createLobby(accessType = accessType, gameType = gameType)
-            ctx.source.sender.sendTranslatedMessage("command.lobby.create.success")
+    fun run(ctx: CommandContext<CommandSourceStack>, accessType: LobbyAccessType, gameType: GameServerType): Int {
+        val operation = LobbyCreateOperation(
+            audience = ctx.source.sender,
+            lobbySettings = LobbySettings(
+                accessType = accessType,
+                gameType = gameType
+            ),
+            executor = ctx.source.sender as? Player
+        )
+        val success = operation.execute()
 
-            if (accessType == LobbyAccessType.OPEN) {
-                if (ctx.source.sender is Player) {
-                    Bukkit.getServer().sendTranslatedMessage("command.lobby.create.success.open_announcement_by_player", ctx.source.sender.name)
-                } else {
-                    Audience.audience(Bukkit.getOnlinePlayers()).sendTranslatedMessage("command.lobby.create.success.open_announcement")
-                }
-            }
-
-            if (ctx.source.sender is Player) {
-                LobbyService.playerJoinLobby((ctx.source.sender as Player).uniqueId, true)
-            }
-
-            return Command.SINGLE_SUCCESS
-        } catch (error: CreateLobbyException) {
-            ctx.source.sender.sendTranslatedMessage(error.key, *error.args)
-            return 0
-        }
+        return if (success) Command.SINGLE_SUCCESS else 0
     }
 }

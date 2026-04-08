@@ -2,10 +2,18 @@
 
 ## 1.2.0
 
-This update contains changes to the config file. To get the most up-to-date default files, remove your local `config.yml` file.
+This update contains changes to the config file. To get the most up-to-date default files, remove your local `plugins/Serverwars/config.yml` file.
+This update contains changes to the translation files. To get the most up-to-date default files, remove your local `plugins/Serverwars/lang` folder.
 
 ### Added
-* Added `server_ip` config option used to transfer players back after a game has finished.  
+* Added `server_ip` config option used to transfer players back after a game has finished.
+* Added an inventory menu to more easily create and edit a Serverwars lobby. 
+  * Added a command to open the menu: `/serverwars lobby`
+  * Added a permission for the new command: `serverwars.commands.lobby.menu`
+* New translation keys:
+  * `command.error.no_lobby`: Shown when opening the menu when there is no lobby.
+  * `command.error.no_permission`: Shown when user has no permission.
+* Added a short cooldown after entering and leaving the match making queue.
 
 ## 1.1.0 (2026-02-27)
 
@@ -14,7 +22,7 @@ This update contains changes to the translation files. To get the most up-to-dat
 ### Added
 * Added `/sw` alias for the main `/serverwars` command.
 * The lobby status is now displayed in the action bar to all participating players.
-* New translations keys:
+* New translation keys:
   * `lobby.status.action_bar`
   * `command.match.join.self.error.not_a_player`
   * `command.match.join.error.not_in_match`

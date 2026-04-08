@@ -8,11 +8,12 @@ import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import io.papermc.paper.command.brigadier.MessageComponentSerializer
 import io.papermc.paper.command.brigadier.argument.CustomArgumentType
-import net.serverwars.sunsetPlugin.domain.gameserver.services.GameServerService
+import net.serverwars.sunsetPlugin.domain.gameservertype.models.gameservertype.GameServerType
+import net.serverwars.sunsetPlugin.domain.gameservertype.services.GameServerTypeService
 import net.serverwars.sunsetPlugin.translations.Translations
 import java.util.concurrent.CompletableFuture
 
-object LobbyGameTypeArgumentType : CustomArgumentType.Converted<String, String> {
+object LobbyGameTypeArgumentType : CustomArgumentType.Converted<GameServerType, String> {
 
     private val NOT_ALLOWED = DynamicCommandExceptionType { gameType: Any ->
         MessageComponentSerializer.message().serialize(
@@ -20,20 +21,19 @@ object LobbyGameTypeArgumentType : CustomArgumentType.Converted<String, String> 
         )
     }
 
-    fun get(ctx: CommandContext<*>, name: String): String = ctx.getArgument(name, String::class.java)
+    fun get(ctx: CommandContext<*>, name: String): GameServerType =
+        ctx.getArgument(name, GameServerType::class.java)
 
-    override fun convert(nativeType: String): String {
-        return if (GameServerService.availableGameServerTypes?.types?.contains(nativeType) == true) nativeType
-        else throw NOT_ALLOWED.create(nativeType)
-    }
+    override fun convert(nativeType: String): GameServerType =
+        GameServerTypeService.getGameServerTypeFromName(nativeType) ?: throw NOT_ALLOWED.create(nativeType)
 
     override fun <S : Any> listSuggestions(
         context: CommandContext<S>,
         builder: SuggestionsBuilder
     ): CompletableFuture<Suggestions> {
-        for (gameType in GameServerService.availableGameServerTypes?.types ?: emptyList()) {
-            if (gameType.startsWith(builder.remainingLowerCase)) {
-                builder.suggest(gameType)
+        for (gameType in GameServerTypeService.availableGameServerTypes) {
+            if (gameType.name.startsWith(builder.remainingLowerCase)) {
+                builder.suggest(gameType.name)
             }
         }
         return builder.buildFuture()

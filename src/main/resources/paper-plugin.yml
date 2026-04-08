@@ -31,6 +31,7 @@ permissions:
     description: Allows access to all lobby-related commands
     default: op
     children:
+      serverwars.commands.lobby.menu: true
       serverwars.commands.lobby.create: true
       serverwars.commands.lobby.set: true
       serverwars.commands.lobby.invite: true
@@ -40,6 +41,10 @@ permissions:
       serverwars.commands.lobby.join.others: true
       serverwars.commands.lobby.leave: true
       serverwars.commands.lobby.kick: true
+
+  serverwars.commands.lobby.menu:
+    description: Allows opening the lobby menu
+    default: true
 
   serverwars.commands.lobby.create:
     description: Allows creating new lobbies

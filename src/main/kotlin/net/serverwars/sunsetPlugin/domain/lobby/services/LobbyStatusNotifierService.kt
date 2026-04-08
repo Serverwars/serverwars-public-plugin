@@ -26,7 +26,7 @@ object LobbyStatusNotifierService {
     private fun showLobbyStatus() {
         val lobby = LobbyService.getLobbyCopy() ?: return
 
-        lobby.sendActionBarMessage("lobby.status.action_bar", lobby.getLobbySettings().gameType.replaceFirstChar { it.uppercase() }, lobby.getParticipants().size, Lobby.MAX_LOBBY_SIZE)
+        lobby.sendActionBarMessage("lobby.status.action_bar", lobby.getLobbySettings().gameType.name.replaceFirstChar { it.uppercase() }, lobby.getParticipants().size, Lobby.MAX_LOBBY_SIZE)
     }
 
 

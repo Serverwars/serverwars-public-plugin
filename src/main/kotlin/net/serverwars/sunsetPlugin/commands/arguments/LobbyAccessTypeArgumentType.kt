@@ -23,10 +23,8 @@ object LobbyAccessTypeArgumentType : CustomArgumentType.Converted<LobbyAccessTyp
     fun get(ctx: CommandContext<*>, name: String): LobbyAccessType =
         ctx.getArgument(name, LobbyAccessType::class.java)
 
-    override fun convert(nativeType: String): LobbyAccessType {
-        return LobbyAccessType.fromValue(nativeType)
-            ?: throw NOT_ALLOWED.create(nativeType)
-    }
+    override fun convert(nativeType: String): LobbyAccessType =
+        LobbyAccessType.fromValue(nativeType) ?: throw NOT_ALLOWED.create(nativeType)
 
     override fun <S : Any> listSuggestions(
         context: CommandContext<S>,

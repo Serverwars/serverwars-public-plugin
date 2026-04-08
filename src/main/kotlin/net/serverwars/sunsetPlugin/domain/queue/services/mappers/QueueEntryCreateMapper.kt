@@ -14,7 +14,7 @@ object QueueEntryCreateMapper {
         return QueueEntryCreate(
             serverSecret = Config.getServerSecret(),
             players = lobby.getParticipants().map { QueueEntryPlayerMapper.fromLobby(it) },
-            gameType = lobby.getLobbySettings().gameType,
+            gameType = lobby.getLobbySettings().gameType.name,
             transferIP = if (Bukkit.getServer().isAcceptingTransfers && ip != null) "$ip:${Bukkit.getPort()}" else null,
         )
     }
