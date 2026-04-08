@@ -13,7 +13,7 @@
 
 ## Serverwars
 
-Team up with players from your server and war against other servers through a series of minigames. 
+Team up with players from your server and battle against other servers through a series of minigames. 
 
 With this plugin, your server can:
 - Create a lobby
