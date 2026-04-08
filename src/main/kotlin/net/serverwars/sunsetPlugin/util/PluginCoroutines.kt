@@ -22,6 +22,10 @@ fun <T> runAsync(runnable: suspend () -> T): CompletableFuture<T> {
     }
 }
 
+fun <T> CompletableFuture<T>.thenRunSync(runnable: (T) -> Unit) {
+    this.thenAccept { result -> runSync { runnable(result) } }
+}
+
 fun runSync(runnable: () -> Unit) {
     Bukkit.getScheduler().runTask(Main.inst, Runnable { runnable() })
 }

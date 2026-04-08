@@ -82,6 +82,23 @@ fun playMatchFoundSound(lobby: Lobby) {
     )
 }
 
+fun playOpenMenuSound(audience: Audience) {
+    playSound(
+        type = Sound.ENTITY_ENDER_EYE_DEATH,
+        volume = 1.2f,
+        pitch = 1.5f,
+        target = audience
+    )
+}
+
+fun playInventoryMenuItemClickSound(player: Audience) {
+    playSound(
+        type = Sound.UI_BUTTON_CLICK,
+        volume = 0.5f,
+        target = player,
+    )
+}
+
 private fun playSound(
     type: net.kyori.adventure.sound.Sound.Type,
     pitch: Float = 1f,

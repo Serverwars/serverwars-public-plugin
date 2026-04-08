@@ -1,5 +1,7 @@
 package net.serverwars.sunsetPlugin.domain.queue.services
 
+import net.kyori.adventure.audience.Audience
+import net.serverwars.sunsetPlugin.Main
 import net.serverwars.sunsetPlugin.domain.lobby.models.Lobby
 import net.serverwars.sunsetPlugin.domain.lobby.services.LobbyService
 import net.serverwars.sunsetPlugin.domain.lobby.services.LobbyStatusNotifierService
@@ -9,17 +11,53 @@ import net.serverwars.sunsetPlugin.domain.queue.exceptions.LeaveQueueException
 import net.serverwars.sunsetPlugin.domain.queue.models.queueentrystatus.QueueEntryStatus
 import net.serverwars.sunsetPlugin.domain.queue.models.queueentrystatus.QueueEntryStatusType
 import net.serverwars.sunsetPlugin.domain.queue.services.mappers.QueueEntryCreateMapper
+import net.serverwars.sunsetPlugin.translations.sendTranslatedMessage
 import net.serverwars.sunsetPlugin.util.playEnterQueueSound
 import net.serverwars.sunsetPlugin.util.playLeaveQueueSound
 import net.serverwars.sunsetPlugin.util.rest.exceptions.ApiException
+import net.serverwars.sunsetPlugin.util.runAsync
+import org.bukkit.Bukkit
 import java.util.*
+import java.util.concurrent.CompletableFuture
 
 object QueueService {
 
-    private var queueUuid: UUID? = null
+    const val QUEUE_COOLDOWN_AFTER_ENTER = 20L
+    const val QUEUE_COOLDOWN_AFTER_LEAVE = 60L
 
-    suspend fun enterQueue() {
-        if (queueUuid != null) {
+    private var queueUuid: UUID? = null
+    private var cooldownTaskId: Int? = null
+
+    fun enterQueue(audience: Audience): CompletableFuture<Unit> {
+        if (this.cooldownTaskId != null) return CompletableFuture.completedFuture(Unit)
+        addCooldown(this.QUEUE_COOLDOWN_AFTER_ENTER)
+
+        return runAsync {
+            try {
+                audience.sendTranslatedMessage("command.queue.entering")
+                enterQueue()
+            } catch (error: EnterQueueException) {
+                audience.sendTranslatedMessage(error.key, *error.args)
+            }
+        }
+    }
+
+    fun leaveQueue(audience: Audience = Audience.empty()): CompletableFuture<Unit> {
+        if (this.cooldownTaskId != null) return CompletableFuture.completedFuture(Unit)
+        addCooldown(this.QUEUE_COOLDOWN_AFTER_LEAVE)
+
+        return runAsync {
+            try {
+                audience.sendTranslatedMessage("command.queue.leaving")
+                leaveQueue()
+            } catch(error: LeaveQueueException) {
+                audience.sendTranslatedMessage(error.key, *error.args)
+            }
+        }
+    }
+
+    private suspend fun enterQueue() {
+        if (this.queueUuid != null) {
             throw EnterQueueException("command.queue.enter.error.already_in_queue")
         }
 
@@ -57,10 +95,10 @@ object QueueService {
         LobbyStatusNotifierService.stopShowingLobbyStatus()
     }
 
-    suspend fun leaveQueue() {
-        val queueUuidCopy = queueUuid ?: throw LeaveQueueException("command.queue.leave.error.not_in_queue")
+    private suspend fun leaveQueue() {
+        val queueUuidCopy = this.queueUuid ?: throw LeaveQueueException("command.queue.leave.error.not_in_queue")
 
-        queueUuid = null
+        this.queueUuid = null
         QueueTimerService.stopTimer(queueUuidCopy)
 
         try {
@@ -80,7 +118,7 @@ object QueueService {
         if (queueEntryStatus.status == QueueEntryStatusType.MATCH_FOUND) {
             val queueUuidCopy = this.queueUuid!!
             QueueTimerService.stopTimer(queueUuidCopy)?.matchFound(matchUuid = queueEntryStatus.matchUuid!!)
-            queueUuid = null
+            this.queueUuid = null
         }
         else if (queueEntryStatus.status == QueueEntryStatusType.LEFT_QUEUE && this.queueUuid != null) {
             LobbyService.getLobbyCopy()?.sendMessage("command.queue.leave.error.forced_to_leave_queue")
@@ -89,4 +127,13 @@ object QueueService {
             } catch (_: LeaveQueueException) { }
         }
     }
+
+    fun isInQueue(): Boolean = this.queueUuid != null
+
+    private fun addCooldown(cooldownInTicks: Long) {
+        this.cooldownTaskId = Bukkit.getScheduler().runTaskLaterAsynchronously(Main.inst, Runnable {
+            this.cooldownTaskId = null
+        }, cooldownInTicks).taskId
+    }
+
 }

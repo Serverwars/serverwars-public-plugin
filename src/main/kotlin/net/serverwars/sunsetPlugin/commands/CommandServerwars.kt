@@ -37,6 +37,7 @@ object CommandServerwars {
             .requires {
                 hasAnyChildPermission(
                     it.sender,
+                    "serverwars.commands.lobby",
                     "serverwars.commands.lobby.create",
                     "serverwars.commands.lobby.set.access",
                     "serverwars.commands.lobby.invite",
@@ -47,6 +48,7 @@ object CommandServerwars {
                     "serverwars.commands.lobby.delete"
                 )
             }
+            .executes { CommandLobby.run(ctx = it) }
             .then(Commands.literal("create")
                 .requires { it.sender.hasPermission("serverwars.commands.lobby.create") }
                 .then(Commands.argument("access type", LobbyAccessTypeArgumentType)
@@ -118,7 +120,7 @@ object CommandServerwars {
                     .executes {
                         val targetResolver = it.getArgument("joiner", PlayerSelectorArgumentResolver::class.java)
                         val target = targetResolver.resolve(it.source).first()
-                        CommandLobbyJoin.run(joiner = target)
+                        CommandLobbyJoin.run(ctx = it, joiner = target)
                     }
                 )
             )

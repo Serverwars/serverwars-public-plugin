@@ -1,7 +1,9 @@
 package net.serverwars.sunsetPlugin.domain.lobby.models
 
 import net.serverwars.sunsetPlugin.domain.lobby.exceptions.CreateParticipantException
+import net.serverwars.sunsetPlugin.domain.lobby.exceptions.ParticipantException
 import org.bukkit.Bukkit
+import org.bukkit.entity.Player
 import java.util.UUID
 
 data class Participant(
@@ -21,4 +23,7 @@ data class Participant(
             }
         }
     }
+
+    fun getAsPlayer(): Player = Bukkit.getOnlinePlayers().find { it.uniqueId == this.playerUuid }
+        ?: throw ParticipantException("Could not convert participant with uuid \"${this.playerUuid}\" to an online player.")
 }

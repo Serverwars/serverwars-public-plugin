@@ -1,10 +1,12 @@
 package net.serverwars.sunsetPlugin.domain.lobby.services
 
+import net.serverwars.sunsetPlugin.domain.gameservertype.models.gameservertype.GameServerType
 import net.serverwars.sunsetPlugin.domain.lobby.exceptions.CreateLobbyException
 import net.serverwars.sunsetPlugin.domain.lobby.exceptions.DeleteLobbyException
 import net.serverwars.sunsetPlugin.domain.lobby.exceptions.SendLobbyToMatchException
 import net.serverwars.sunsetPlugin.domain.lobby.exceptions.UpdateLobbyException
 import net.serverwars.sunsetPlugin.domain.lobby.models.*
+import net.serverwars.sunsetPlugin.domain.menu.models.menu.LobbyMenu
 import net.serverwars.sunsetPlugin.domain.queue.exceptions.LeaveQueueException
 import net.serverwars.sunsetPlugin.domain.queue.services.QueueService
 import net.serverwars.sunsetPlugin.util.*
@@ -22,7 +24,7 @@ object LobbyService {
         }
     }
 
-    fun createLobby(accessType: LobbyAccessType, gameType: String): Lobby {
+    fun createLobby(accessType: LobbyAccessType, gameType: GameServerType): Lobby {
         if (lobby != null) {
             throw CreateLobbyException("command.lobby.create.error.too_many_existing_lobbies")
         }
@@ -51,7 +53,7 @@ object LobbyService {
         return updatedLobby
     }
 
-    fun updateLobbyGameType(value: String): Lobby {
+    fun updateLobbyGameType(value: GameServerType): Lobby {
         val lobbyValue = this.lobby
             ?: throw UpdateLobbyException("command.lobby.set.error.no_lobby")
 
@@ -208,6 +210,7 @@ object LobbyService {
 
     fun deleteLobby(): Lobby {
         LobbyStatusNotifierService.stopShowingLobbyStatus()
+        LobbyMenu.closeForAll()
 
         val deletedLobby = this.lobby ?: throw DeleteLobbyException("command.lobby.delete.error.no_lobby")
         this.lobby = null
