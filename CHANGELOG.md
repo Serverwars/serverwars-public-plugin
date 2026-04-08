@@ -2,8 +2,9 @@
 
 ## 1.2.0
 
-This update contains changes to the config file. To get the most up-to-date default files, remove your local `plugins/Serverwars/config.yml` file.
-This update contains changes to the translation files. To get the most up-to-date default files, remove your local `plugins/Serverwars/lang` folder.
+> This update contains changes to the config file. The most up-to-date `config.yml` can be found [here](https://github.com/Serverwars/serverwars-public-plugin/blob/main/src/main/resources/config.yml).
+
+> This update contains changes to the translation files. The most up-to-date `plugins/Serverwars/lang` files can be found [here](https://github.com/Serverwars/serverwars-public-plugin/tree/main/src/main/resources/lang). 
 
 ### Added
 * Added `server_ip` config option used to transfer players back after a game has finished.
