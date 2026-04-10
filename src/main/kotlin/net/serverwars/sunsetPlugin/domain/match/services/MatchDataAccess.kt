@@ -70,10 +70,12 @@ object MatchDataAccess {
                                 val dto = parseSSEDto<MatchStatusEventDto>(rawData)
                                 val matchStatusEvent = MatchStatusEventMapper.fromDto(dto)
 
-                                Main.inst.logger.info("[MATCH_STATUS_EVENT]: $matchStatusEvent")
                                 if (matchStatusEvent.status === MatchStatus.OPEN) {
+                                    Main.inst.logger.info("[QUEUE] Match open! Game server is ready to join.")
                                     LobbyService.sendLobbyToMatch()
                                     this@coroutineScope.cancel() // Close SSE connection
+                                } else {
+                                    Main.inst.logger.info("[QUEUE] $matchStatusEvent")
                                 }
                             }
                         }
@@ -81,7 +83,7 @@ object MatchDataAccess {
             }
         }.onFailure { error ->
             if (error !is CancellationException) {
-                Main.inst.logger.severe("[MATCH STATUS LISTEN Error]: $error")
+                Main.inst.logger.severe("[MATCH STATUS LISTEN Error] $error")
             }
         }
     }

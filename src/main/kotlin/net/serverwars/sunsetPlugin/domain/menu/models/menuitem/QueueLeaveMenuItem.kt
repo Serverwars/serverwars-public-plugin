@@ -18,7 +18,7 @@ object QueueLeaveMenuItem : MenuItem(
 
         result.editMeta { meta ->
             meta.displayName(toItemText("<shadow:#A35700:0.75><gold><bold>In queue..."))
-            if (hasPermission(viewer)) {
+            if (hasPermission(viewer) && !hasMatch()) {
                 meta.lore(
                     listOf(
                         toItemText("<shadow:#A35700:0.75><white>Click to leave queue."),
@@ -31,7 +31,7 @@ object QueueLeaveMenuItem : MenuItem(
     }
 
     override fun onClick(humanEntity: HumanEntity) {
-        if (!hasPermission(humanEntity)) return
+        if (!hasPermission(humanEntity) || hasMatch()) return
         super.onClick(humanEntity)
 
         QueueService.leaveQueue(humanEntity).thenRunSync { LobbyMenu.updateForAll() }

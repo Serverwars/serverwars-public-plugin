@@ -24,7 +24,7 @@ data class ParticipantKickMenuItem(
         result.editMeta { itemMeta ->
             val meta = itemMeta as SkullMeta
             meta.displayName(toItemText("<shadow:#A35700:0.75><yellow>${this.participant.name}"))
-            if (hasPermission(viewer)) {
+            if (hasPermission(viewer) && !hasMatch()) {
                 meta.lore(
                     listOf(
                         toItemText("<shadow:#A35700:0.75><white>Click to kick player from the Serverwar."),
@@ -38,7 +38,7 @@ data class ParticipantKickMenuItem(
     }
 
     override fun onClick(humanEntity: HumanEntity) {
-        if (!hasPermission(humanEntity)) return
+        if (!hasPermission(humanEntity) || hasMatch()) return
         super.onClick(humanEntity)
 
         // Kick player

@@ -30,7 +30,7 @@ data class AccessTypeMenuItem(
             }
             meta.displayName(toItemText("<shadow:#A35700:0.75><yellow>Access type: <gold>$displayName"))
 
-            if (hasPermission(viewer)) {
+            if (hasPermission(viewer) && !hasMatch()) {
                 meta.lore(
                     listOf(
                         toItemText("<shadow:#A35700:0.75><white>Click to choose who can join the Serverwar."),
@@ -43,7 +43,7 @@ data class AccessTypeMenuItem(
     }
 
     override fun onClick(humanEntity: HumanEntity) {
-        if (!hasPermission(humanEntity)) return
+        if (!hasPermission(humanEntity) || hasMatch()) return
         super.onClick(humanEntity)
 
         LobbyAccessTypeMenu.createFor(humanEntity) { pickedAccessType ->

@@ -15,6 +15,7 @@ import net.serverwars.sunsetPlugin.domain.queue.models.queueentrycreate.QueueEnt
 import net.serverwars.sunsetPlugin.domain.queue.models.queueentrycreateresponse.QueueEntryCreateResponse
 import net.serverwars.sunsetPlugin.domain.queue.models.queueentrycreateresponse.QueueEntryCreateResponseDto
 import net.serverwars.sunsetPlugin.domain.queue.models.queueentrystatus.QueueEntryStatusDto
+import net.serverwars.sunsetPlugin.domain.queue.models.queueentrystatus.QueueEntryStatusType
 import net.serverwars.sunsetPlugin.domain.queue.services.mappers.QueueEntryCreateMapper
 import net.serverwars.sunsetPlugin.domain.queue.services.mappers.QueueEntryCreateResponseMapper
 import net.serverwars.sunsetPlugin.domain.queue.services.mappers.QueueEntryDeleteMapper
@@ -85,7 +86,13 @@ object QueueDataAccess {
                         val dto = parseSSEDto<QueueEntryStatusDto>(rawData)
                         val queueStatus = QueueEntryStatusMapper.fromDto(dto)
 
-                        Main.inst.logger.info("[QUEUE]: $queueStatus")
+                        val statusMessage = when (queueStatus.status) {
+                            QueueEntryStatusType.NO_MATCH_FOUND -> null // Still in queue
+                            QueueEntryStatusType.LEFT_QUEUE -> null // Already logged
+                            QueueEntryStatusType.MATCH_FOUND -> "Match found after ${QueueService.getTimeInQueue()}ms! Preparing game server..."
+                            QueueEntryStatusType.ERROR -> "Error: ${queueStatus.errorMessage}"
+                        }
+                        statusMessage?.let { Main.inst.logger.info("[QUEUE] $it") }
                         QueueService.parseQueueEntryStatus(queueStatus)
                     }
             }
@@ -94,7 +101,7 @@ object QueueDataAccess {
             if (error is SSEClientException && stopListening) {
                 stopListening = false
             } else {
-                Main.inst.logger.severe("[QUEUE LISTEN Error]: $error")
+                Main.inst.logger.severe("[QUEUE LISTEN Error] $error")
                 try {
                     QueueService.leaveQueue()
                 } catch (_: LeaveQueueException) {

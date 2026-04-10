@@ -1,6 +1,7 @@
 package net.serverwars.sunsetPlugin.domain.menu.models.menuitem
 
 import net.serverwars.sunsetPlugin.Main
+import net.serverwars.sunsetPlugin.domain.match.services.MatchService
 import net.serverwars.sunsetPlugin.util.playInventoryMenuItemClickSound
 import org.bukkit.NamespacedKey
 import org.bukkit.entity.HumanEntity
@@ -20,4 +21,6 @@ abstract class MenuItem(
     }
 
     fun hasPermission(viewer: HumanEntity): Boolean = this.permission?.let { viewer.hasPermission(it) } ?: true
+
+    fun hasMatch(): Boolean = MatchService.hasMatch()
 }

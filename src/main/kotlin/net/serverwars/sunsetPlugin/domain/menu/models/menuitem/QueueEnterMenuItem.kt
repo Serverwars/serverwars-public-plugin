@@ -17,9 +17,12 @@ object QueueEnterMenuItem : MenuItem(
         val result = ItemStack(this.material)
 
         result.editMeta { meta ->
-            val displayName = if (hasPermission(viewer)) "Enter queue" else "Waiting for players..."
+            val displayName =
+                if (hasMatch()) "Preparing match..."
+                else if (hasPermission(viewer)) "Enter queue"
+                else "Waiting for players..."
             meta.displayName(toItemText("<shadow:#A35700:0.75><gold><bold>$displayName"))
-            if (hasPermission(viewer)) {
+            if (hasPermission(viewer) && !hasMatch()) {
                 meta.lore(
                     listOf(
                         toItemText("<shadow:#A35700:0.75><white>Click to enter the match making queue."),
@@ -32,7 +35,7 @@ object QueueEnterMenuItem : MenuItem(
     }
 
     override fun onClick(humanEntity: HumanEntity) {
-        if (!hasPermission(humanEntity)) return
+        if (!hasPermission(humanEntity) || hasMatch()) return
         super.onClick(humanEntity)
 
         QueueService.enterQueue(humanEntity).thenRunSync { LobbyMenu.updateForAll() }

@@ -8,7 +8,7 @@ object EventListenerManager {
 
     fun initialize() {
         setOf(
-            PlayerQuitListener,
+            PlayerConnectionListener,
             MenuListener,
         ).forEach { listener -> Bukkit.getPluginManager().registerEvents(listener, Main.inst) }
     }

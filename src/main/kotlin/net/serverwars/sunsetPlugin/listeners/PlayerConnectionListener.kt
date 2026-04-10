@@ -3,11 +3,24 @@ package net.serverwars.sunsetPlugin.listeners
 import net.serverwars.sunsetPlugin.domain.lobby.models.Lobby
 import net.serverwars.sunsetPlugin.domain.lobby.models.Participant
 import net.serverwars.sunsetPlugin.domain.lobby.services.LobbyService
+import net.serverwars.sunsetPlugin.domain.match.services.MatchService
+import net.serverwars.sunsetPlugin.translations.sendTranslatedMessage
+import net.serverwars.sunsetPlugin.util.runAsync
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
+import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 
-object PlayerQuitListener : Listener {
+object PlayerConnectionListener : Listener {
+
+    @EventHandler
+    fun onPlayerJoin(event: PlayerJoinEvent) {
+        runAsync {
+            if (MatchService.checkInMatch()) {
+                event.player.sendTranslatedMessage("match_active")
+            }
+        }
+    }
 
     @EventHandler
     fun onPlayerQuit(event: PlayerQuitEvent) {

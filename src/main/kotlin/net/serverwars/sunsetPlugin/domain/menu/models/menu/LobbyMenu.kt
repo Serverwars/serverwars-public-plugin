@@ -4,8 +4,10 @@ import net.kyori.adventure.text.Component
 import net.serverwars.sunsetPlugin.domain.lobby.models.Lobby
 import net.serverwars.sunsetPlugin.domain.lobby.models.Participant
 import net.serverwars.sunsetPlugin.domain.lobby.services.LobbyService
+import net.serverwars.sunsetPlugin.domain.match.services.MatchService
 import net.serverwars.sunsetPlugin.domain.menu.models.menuitem.*
 import net.serverwars.sunsetPlugin.domain.queue.services.QueueService
+import net.serverwars.sunsetPlugin.translations.sendTranslatedMessage
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.entity.HumanEntity
@@ -23,6 +25,7 @@ class LobbyMenu(
         )
         val result = mutableMapOf<Int, MenuItem>()
         val lobby = LobbyService.getLobbyCopy()!!
+        val matchLoading = MatchService.hasMatch()
 
         val participants = lobby.getParticipants()
         participants.forEachIndexed { index, participant ->
@@ -31,13 +34,14 @@ class LobbyMenu(
         if (
             lobby.getParticipantAmount() < Lobby.MAX_LOBBY_SIZE &&
             ParticipantJoinMenuItem.hasPermission(viewer) &&
-            LobbyService.getLobbyCopy()?.hasParticipant(Participant.create(viewer.uniqueId)) == false
+            LobbyService.getLobbyCopy()?.hasParticipant(Participant.create(viewer.uniqueId)) == false &&
+            !matchLoading
         ) {
             result[participantItemSlots[lobby.getParticipantAmount()]] = ParticipantJoinMenuItem
         }
 
-        result[8] = DeleteLobbyMenuItem
         result[4] = if (QueueService.isInQueue()) QueueLeaveMenuItem else QueueEnterMenuItem
+        result[8] = if (matchLoading) FillerMenuItem else DeleteLobbyMenuItem
         result[26] = GameMenuItem(lobby.getLobbySettings().gameType)
         result[35] = AccessTypeMenuItem(lobby.getLobbySettings().accessType)
 
@@ -53,7 +57,15 @@ class LobbyMenu(
     )
 ) {
     companion object {
-        fun createFor(humanEntity: HumanEntity) = LobbyMenu(humanEntity).open()
+        fun createFor(humanEntity: HumanEntity) {
+            val lobby = LobbyService.getLobbyCopy()
+            if (lobby == null) {
+                humanEntity.sendTranslatedMessage("command.error.no_lobby")
+                return
+            }
+
+            LobbyMenu(humanEntity).open()
+        }
 
         fun updateForAll() {
             Bukkit.getOnlinePlayers()

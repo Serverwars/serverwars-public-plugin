@@ -1,13 +1,10 @@
 package net.serverwars.sunsetPlugin.domain.menu.models.menuitem
 
 import net.serverwars.sunsetPlugin.domain.gameservertype.models.gameservertype.GameServerType
-import net.serverwars.sunsetPlugin.domain.lobby.models.operations.LobbySetAccessTypeOperation
 import net.serverwars.sunsetPlugin.domain.lobby.models.operations.LobbySetGameTypeOperation
-import net.serverwars.sunsetPlugin.domain.menu.models.menu.LobbyAccessTypeMenu
 import net.serverwars.sunsetPlugin.domain.menu.models.menu.LobbyGameTypeMenu
 import net.serverwars.sunsetPlugin.domain.menu.models.menu.LobbyMenu
 import net.serverwars.sunsetPlugin.util.toItemText
-import org.bukkit.Material
 import org.bukkit.entity.HumanEntity
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
@@ -23,7 +20,7 @@ data class GameMenuItem(
 
         result.editMeta { meta ->
             meta.displayName(toItemText("<shadow:#A35700:0.75><yellow>Game: <gold>${this.gameType.name.replaceFirstChar { it.uppercase() }}"))
-            if (hasPermission(viewer))
+            if (hasPermission(viewer) && !hasMatch())
             meta.lore(
                 listOf(
                     toItemText("<shadow:#A35700:0.75><white>Click to choose a different game."),
@@ -35,7 +32,7 @@ data class GameMenuItem(
     }
 
     override fun onClick(humanEntity: HumanEntity) {
-        if (!hasPermission(humanEntity)) return
+        if (!hasPermission(humanEntity) || hasMatch()) return
         super.onClick(humanEntity)
 
         LobbyGameTypeMenu.createFor(humanEntity) { pickedGameType ->

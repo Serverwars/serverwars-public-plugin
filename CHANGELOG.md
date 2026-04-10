@@ -1,9 +1,21 @@
 # Changelog
 
-## 1.2.1
+## 1.3.0 (2026-04-10)
+
+> This update contains changes to the translation files. The most up-to-date `plugins/Serverwars/lang` files can be found [here](https://github.com/Serverwars/serverwars-public-plugin/tree/main/src/main/resources/lang).
+
+### Added
+* New translation keys:
+  * `command.error.preparing_match`: Shown when a lobby change is tried when a match is being started.
+  * `command.lobby.set.access_type.success.open_announcement`: Announced when a lobby is set to `Open`.
+  * `match_active`: Shown to a player when they log in and a Serverwar is active.
+
+### Changed
+* Made queue debug messages shown in console easier to read.
 
 ### Fixed
-* Creating a Serverwars lobby no longer causes a short cooldown to enter the queue.
+* Stop changing lobby properties when a match is being started, via commands and in menu.
+* Creating a lobby no longer causes a short cooldown to enter the queue.
 
 ## 1.2.0 (2026-04-08)
 

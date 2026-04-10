@@ -3,7 +3,7 @@ package net.serverwars.sunsetPlugin.domain.lobby.models
 import net.kyori.adventure.audience.Audience
 import net.serverwars.sunsetPlugin.config.Config
 import net.serverwars.sunsetPlugin.domain.lobby.services.LobbyService
-import net.serverwars.sunsetPlugin.domain.match.services.MatchDataAccess
+import net.serverwars.sunsetPlugin.domain.match.services.MatchService
 import net.serverwars.sunsetPlugin.domain.server.services.ServerService
 import net.serverwars.sunsetPlugin.translations.sendTranslatedActionBarMessage
 import net.serverwars.sunsetPlugin.translations.sendTranslatedMessage
@@ -34,17 +34,17 @@ data class Lobby(
         )
     }
 
-    fun hasParticipant(participant: Participant): Boolean = participants
+    fun hasParticipant(participant: Participant): Boolean = this.participants
         .map { it.playerUuid }
         .contains(participant.playerUuid)
 
-    fun getParticipantAmount() = participants.size
+    fun getParticipantAmount() = this.participants.size
 
-    fun getParticipants(): List<Participant> = participants
+    fun getParticipants(): List<Participant> = this.participants
 
-    fun getLobbySettings(): LobbySettings = lobbySettings
+    fun getLobbySettings(): LobbySettings = this.lobbySettings
 
-    fun getInvitationForPlayer(playerUuid: UUID): LobbyInvitation? = invitations
+    fun getInvitationForPlayer(playerUuid: UUID): LobbyInvitation? = this.invitations
         .find { it.inviteeUuid == playerUuid }
 
     fun withLobbySettings(lobbySettings: LobbySettings): Lobby {
@@ -71,6 +71,12 @@ data class Lobby(
         return this.copy(invitations = emptyList())
     }
 
+    fun notifyMatchFound() {
+        sendActionBarMessage("queue.match_found.action_bar")
+        sendMessage("queue.success.match_found")
+        playMatchFoundSound(this)
+    }
+
     fun sendMessage(translationKey: String, vararg args: Any) {
         getLobbyAudience().sendTranslatedMessage(translationKey, *args)
     }
@@ -87,14 +93,6 @@ data class Lobby(
         getLobbyAudience().sendTranslatedActionBarMessage(translationKey, *args)
     }
 
-    suspend fun matchFound(matchUuid: UUID) {
-        sendActionBarMessage("queue.match_found.action_bar")
-        sendMessage("queue.success.match_found")
-        playMatchFoundSound(this)
-
-        MatchDataAccess.listenToMatchStatusEvents(matchUuid = matchUuid)
-    }
-
     fun sendParticipantsToMatch() {
         runSync {
             val serverSlug = ServerService.getServerSlug()
@@ -102,11 +100,12 @@ data class Lobby(
 
             val shouldAutoTransferPlayers = Config.shouldTransferOnMatchReady()
             if (shouldAutoTransferPlayers) {
-                participants.forEach { participant ->
+                this.participants.forEach { participant ->
                     Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "transfer $serverSlug.${Config.getServerwarsMinecraftServerIP()} 25565 ${participant.name}")
                 }
             }
 
+            MatchService.setMatch(null)
             LobbyService.deleteLobby()
         }
     }

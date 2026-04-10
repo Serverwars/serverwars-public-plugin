@@ -6,6 +6,7 @@ import net.serverwars.sunsetPlugin.domain.lobby.exceptions.DeleteLobbyException
 import net.serverwars.sunsetPlugin.domain.lobby.exceptions.SendLobbyToMatchException
 import net.serverwars.sunsetPlugin.domain.lobby.exceptions.UpdateLobbyException
 import net.serverwars.sunsetPlugin.domain.lobby.models.*
+import net.serverwars.sunsetPlugin.domain.match.services.MatchService
 import net.serverwars.sunsetPlugin.domain.menu.models.menu.LobbyMenu
 import net.serverwars.sunsetPlugin.domain.queue.exceptions.LeaveQueueException
 import net.serverwars.sunsetPlugin.domain.queue.services.QueueService
@@ -25,7 +26,7 @@ object LobbyService {
     }
 
     fun createLobby(accessType: LobbyAccessType, gameType: GameServerType): Lobby {
-        if (lobby != null) {
+        if (lobbyExists()) {
             throw CreateLobbyException("command.lobby.create.error.too_many_existing_lobbies")
         }
 
@@ -42,6 +43,10 @@ object LobbyService {
         val lobbyValue = this.lobby
             ?: throw UpdateLobbyException("command.lobby.set.error.no_lobby")
 
+        if (MatchService.hasMatch()) {
+            throw UpdateLobbyException("command.error.preparing_match")
+        }
+
         if (lobbyValue.getLobbySettings().accessType == value) {
             throw UpdateLobbyException("command.lobby.set.error.nothing_changed")
         }
@@ -49,13 +54,17 @@ object LobbyService {
         playSetLobbySound(lobbyValue)
         val updatedLobbySettings = lobbyValue.getLobbySettings().withAccessType(value)
         val updatedLobby = lobbyValue.withLobbySettings(updatedLobbySettings).withoutInvites()
-        lobby = updatedLobby
+        this.lobby = updatedLobby
         return updatedLobby
     }
 
     fun updateLobbyGameType(value: GameServerType): Lobby {
         val lobbyValue = this.lobby
             ?: throw UpdateLobbyException("command.lobby.set.error.no_lobby")
+
+        if (MatchService.hasMatch()) {
+            throw UpdateLobbyException("command.error.preparing_match")
+        }
 
         if (lobbyValue.getLobbySettings().gameType == value) {
             throw UpdateLobbyException("command.lobby.set.error.nothing_changed")
@@ -64,7 +73,7 @@ object LobbyService {
         playSetLobbySound(lobbyValue)
         val updatedLobbySettings = lobbyValue.getLobbySettings().withGameType(value)
         val updatedLobby = lobbyValue.withLobbySettings(updatedLobbySettings)
-        lobby = updatedLobby
+        this.lobby = updatedLobby
         return updatedLobby
     }
 
@@ -72,6 +81,10 @@ object LobbyService {
         val lobbyValue = this.lobby
             ?: throw UpdateLobbyException("command.lobby.join.error.no_lobby")
         val participant = Participant.create(playerUuid)
+
+        if (MatchService.hasMatch()) {
+            throw UpdateLobbyException("command.error.preparing_match")
+        }
 
         if (lobbyValue.hasParticipant(participant)) {
             throw UpdateLobbyException("command.lobby.join.error.already_in_lobby")
@@ -86,7 +99,7 @@ object LobbyService {
         }
 
         val updatedLobby = lobbyValue.withParticipant(participant)
-        lobby = updatedLobby
+        this.lobby = updatedLobby
         playPlayerJoinsLobbySound(updatedLobby)
         return updatedLobby
     }
@@ -99,9 +112,13 @@ object LobbyService {
             throw UpdateLobbyException("command.lobby.leave.error.not_in_lobby")
         }
 
+        if (MatchService.hasMatch()) {
+            throw UpdateLobbyException("command.error.preparing_match")
+        }
+
         playPlayerLeavesLobbySound(lobbyValue)
         val updatedLobby = lobbyValue.withoutParticipant(participant)
-        lobby = updatedLobby
+        this.lobby = updatedLobby
         return updatedLobby
     }
 
@@ -113,9 +130,13 @@ object LobbyService {
             throw UpdateLobbyException("command.lobby.kick.error.not_in_lobby")
         }
 
+        if (MatchService.hasMatch()) {
+            throw UpdateLobbyException("command.error.preparing_match")
+        }
+
         playPlayerKickedFromLobbySound(lobbyValue)
         val updatedLobby = lobbyValue.withoutParticipant(kickedParticipant)
-        lobby = updatedLobby
+        this.lobby = updatedLobby
         return updatedLobby
     }
 
@@ -129,6 +150,10 @@ object LobbyService {
 
         if (inviterParticipant == invitedPlayerUuid) {
             throw UpdateLobbyException("command.lobby.invite.error.self_invite")
+        }
+
+        if (MatchService.hasMatch()) {
+            throw UpdateLobbyException("command.error.preparing_match")
         }
 
         val invitedParticipant = Participant.create(invitedPlayerUuid)
@@ -147,7 +172,7 @@ object LobbyService {
         playCreateInviteSound(lobbyValue)
         val newInvitation = LobbyInvitation.create(invitedPlayerUuid)
         val updatedLobby = lobbyValue.withInvite(newInvitation)
-        lobby = updatedLobby
+        this.lobby = updatedLobby
 
         return updatedLobby
     }
@@ -166,13 +191,17 @@ object LobbyService {
 
         playRevokeInviteSound(lobbyValue)
         val updatedLobby = lobbyValue.withoutInvite(invitation)
-        lobby = updatedLobby
+        this.lobby = updatedLobby
         return updatedLobby
     }
 
     fun acceptLobbyInvitation(invitedPlayerUuid: UUID): Lobby {
         val lobbyValue = this.lobby
             ?: throw UpdateLobbyException("command.lobby.invite.accept.error.no_lobby")
+
+        if (MatchService.hasMatch()) {
+            throw UpdateLobbyException("command.error.preparing_match")
+        }
 
         if (lobbyValue.getParticipantAmount() >= Lobby.MAX_LOBBY_SIZE) {
             throw UpdateLobbyException("command.lobby.invite.accept.error.lobby_full")
@@ -187,7 +216,7 @@ object LobbyService {
             ?: throw UpdateLobbyException("command.lobby.invite.accept.error.not_invited")
 
         val updatedLobby = lobbyValue.withoutInvite(invitation).withParticipant(invitedParticipant)
-        lobby = updatedLobby
+        this.lobby = updatedLobby
         playPlayerJoinsLobbySound(updatedLobby)
         return updatedLobby
     }
@@ -204,11 +233,13 @@ object LobbyService {
         }
 
         val updatedLobby = lobbyValue.withoutInvite(invitation)
-        lobby = updatedLobby
+        this.lobby = updatedLobby
         return updatedLobby
     }
 
     fun deleteLobby(): Lobby {
+        if (MatchService.hasMatch()) throw DeleteLobbyException("command.error.preparing_match")
+
         LobbyStatusNotifierService.stopShowingLobbyStatus()
         LobbyMenu.closeForAll()
 

@@ -24,10 +24,11 @@ data class LobbyCreateOperation(
             this.audience.sendTranslatedMessage("command.lobby.create.success")
 
             if (this.lobbySettings.accessType == LobbyAccessType.OPEN) {
+                val audience = Audience.audience(Bukkit.getOnlinePlayers())
                 if (this.executor != null) {
-                    Bukkit.getServer().sendTranslatedMessage("command.lobby.create.success.open_announcement_by_player", executor.name)
+                    audience.sendTranslatedMessage("command.lobby.create.success.open_announcement_by_player", executor.name)
                 } else {
-                    Audience.audience(Bukkit.getOnlinePlayers()).sendTranslatedMessage("command.lobby.create.success.open_announcement")
+                    audience.sendTranslatedMessage("command.lobby.create.success.open_announcement")
                 }
             }
 

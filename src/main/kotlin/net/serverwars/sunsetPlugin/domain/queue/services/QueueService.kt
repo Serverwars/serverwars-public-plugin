@@ -5,6 +5,7 @@ import net.serverwars.sunsetPlugin.Main
 import net.serverwars.sunsetPlugin.domain.lobby.models.Lobby
 import net.serverwars.sunsetPlugin.domain.lobby.services.LobbyService
 import net.serverwars.sunsetPlugin.domain.lobby.services.LobbyStatusNotifierService
+import net.serverwars.sunsetPlugin.domain.match.services.MatchDataAccess
 import net.serverwars.sunsetPlugin.domain.match.services.MatchService
 import net.serverwars.sunsetPlugin.domain.menu.models.menu.LobbyMenu
 import net.serverwars.sunsetPlugin.domain.menu.models.menuitem.QueueEnterMenuItem
@@ -15,6 +16,7 @@ import net.serverwars.sunsetPlugin.domain.queue.models.queueentrystatus.QueueEnt
 import net.serverwars.sunsetPlugin.domain.queue.models.queueentrystatus.QueueEntryStatusType
 import net.serverwars.sunsetPlugin.domain.queue.services.mappers.QueueEntryCreateMapper
 import net.serverwars.sunsetPlugin.translations.sendTranslatedMessage
+import net.serverwars.sunsetPlugin.util.now
 import net.serverwars.sunsetPlugin.util.playEnterQueueSound
 import net.serverwars.sunsetPlugin.util.playLeaveQueueSound
 import net.serverwars.sunsetPlugin.util.rest.exceptions.ApiException
@@ -30,8 +32,11 @@ object QueueService {
     const val QUEUE_COOLDOWN_AFTER_ENTER = 30L
     const val QUEUE_COOLDOWN_AFTER_LEAVE = 80L // Equal to queue update interval
 
+    private var queueEnterTimestamp: Long? = null
     private var queueUuid: UUID? = null
     private var cooldownTaskId: Int? = null
+
+    fun getTimeInQueue(): Long = queueEnterTimestamp?.let { now() - it } ?: 0
 
     fun enterQueue(audience: Audience): CompletableFuture<Unit> {
         if (this.cooldownTaskId != null) return CompletableFuture.completedFuture(Unit)
@@ -98,6 +103,9 @@ object QueueService {
         lobby.sendMessage("command.queue.enter.success.notify_lobby")
         playEnterQueueSound(lobby)
         LobbyStatusNotifierService.stopShowingLobbyStatus()
+
+        this.queueEnterTimestamp = now()
+        Main.inst.logger.info("[QUEUE] Entering queue, searching for opponents...")
     }
 
     private suspend fun sendLeaveQueue() {
@@ -114,6 +122,8 @@ object QueueService {
                 playLeaveQueueSound(it)
                 LobbyStatusNotifierService.startShowingLobbyStatus()
             }
+            Main.inst.logger.info("[QUEUE] Left queue, time in queue: ${getTimeInQueue()}ms")
+            this.queueEnterTimestamp = null
         } catch (_: ApiException) {
             throw LeaveQueueException("command.queue.leave.error.api_exception")
         }
@@ -121,9 +131,19 @@ object QueueService {
 
     suspend fun parseQueueEntryStatus(queueEntryStatus: QueueEntryStatus) {
         if (queueEntryStatus.status == QueueEntryStatusType.MATCH_FOUND) {
+            runSync {
+                LobbyMenu.closeForAll()
+            }
+
             val queueUuidCopy = this.queueUuid!!
-            QueueTimerService.stopTimer(queueUuidCopy)?.matchFound(matchUuid = queueEntryStatus.matchUuid!!)
             this.queueUuid = null
+            this.queueEnterTimestamp = null
+
+            QueueTimerService.stopTimer(queueUuidCopy)?.notifyMatchFound()
+
+            val matchUuid = queueEntryStatus.matchUuid!!
+            MatchService.setMatch(matchUuid)
+            MatchDataAccess.listenToMatchStatusEvents(matchUuid = matchUuid)
         }
         else if (queueEntryStatus.status == QueueEntryStatusType.LEFT_QUEUE && this.queueUuid != null) {
             LobbyService.getLobbyCopy()?.sendMessage("command.queue.leave.error.forced_to_leave_queue")
