@@ -11,10 +11,10 @@ import org.bukkit.inventory.ItemStack
 object QueueEnterMenuItem : MenuItem(
     permission = "serverwars.commands.queue.enter"
 ) {
+    val material = Material.ENDER_PEARL
 
     override fun getItem(viewer: HumanEntity): ItemStack {
-        val material = Material.ENDER_PEARL
-        val result = ItemStack(material)
+        val result = ItemStack(this.material)
 
         result.editMeta { meta ->
             val displayName = if (hasPermission(viewer)) "Enter queue" else "Waiting for players..."
@@ -36,9 +36,5 @@ object QueueEnterMenuItem : MenuItem(
         super.onClick(humanEntity)
 
         QueueService.enterQueue(humanEntity).thenRunSync { LobbyMenu.updateForAll() }
-        LobbyMenu.visualizeCooldownForAll(
-            QueueLeaveMenuItem.getItem(humanEntity).type,
-            QueueService.QUEUE_COOLDOWN_AFTER_ENTER.toInt()
-        )
     }
 }

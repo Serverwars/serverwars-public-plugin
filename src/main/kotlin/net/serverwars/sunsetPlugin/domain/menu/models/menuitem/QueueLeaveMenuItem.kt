@@ -11,10 +11,10 @@ import org.bukkit.inventory.ItemStack
 object QueueLeaveMenuItem : MenuItem(
     permission = "serverwars.commands.queue.leave",
 ) {
+    val material = Material.ENDER_EYE
 
     override fun getItem(viewer: HumanEntity): ItemStack {
-        val material = Material.ENDER_EYE
-        val result = ItemStack(material)
+        val result = ItemStack(this.material)
 
         result.editMeta { meta ->
             meta.displayName(toItemText("<shadow:#A35700:0.75><gold><bold>In queue..."))
@@ -35,9 +35,5 @@ object QueueLeaveMenuItem : MenuItem(
         super.onClick(humanEntity)
 
         QueueService.leaveQueue(humanEntity).thenRunSync { LobbyMenu.updateForAll() }
-        LobbyMenu.visualizeCooldownForAll(
-            QueueEnterMenuItem.getItem(humanEntity).type,
-            QueueService.QUEUE_COOLDOWN_AFTER_LEAVE.toInt()
-        )
     }
 }

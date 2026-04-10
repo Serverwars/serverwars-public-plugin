@@ -6,6 +6,9 @@ import net.serverwars.sunsetPlugin.domain.lobby.models.Lobby
 import net.serverwars.sunsetPlugin.domain.lobby.services.LobbyService
 import net.serverwars.sunsetPlugin.domain.lobby.services.LobbyStatusNotifierService
 import net.serverwars.sunsetPlugin.domain.match.services.MatchService
+import net.serverwars.sunsetPlugin.domain.menu.models.menu.LobbyMenu
+import net.serverwars.sunsetPlugin.domain.menu.models.menuitem.QueueEnterMenuItem
+import net.serverwars.sunsetPlugin.domain.menu.models.menuitem.QueueLeaveMenuItem
 import net.serverwars.sunsetPlugin.domain.queue.exceptions.EnterQueueException
 import net.serverwars.sunsetPlugin.domain.queue.exceptions.LeaveQueueException
 import net.serverwars.sunsetPlugin.domain.queue.models.queueentrystatus.QueueEntryStatus
@@ -16,7 +19,9 @@ import net.serverwars.sunsetPlugin.util.playEnterQueueSound
 import net.serverwars.sunsetPlugin.util.playLeaveQueueSound
 import net.serverwars.sunsetPlugin.util.rest.exceptions.ApiException
 import net.serverwars.sunsetPlugin.util.runAsync
+import net.serverwars.sunsetPlugin.util.runSync
 import org.bukkit.Bukkit
+import org.bukkit.Material
 import java.util.*
 import java.util.concurrent.CompletableFuture
 
@@ -30,12 +35,12 @@ object QueueService {
 
     fun enterQueue(audience: Audience): CompletableFuture<Unit> {
         if (this.cooldownTaskId != null) return CompletableFuture.completedFuture(Unit)
-        addCooldown(this.QUEUE_COOLDOWN_AFTER_ENTER)
 
         return runAsync {
             try {
                 audience.sendTranslatedMessage("command.queue.entering")
                 sendEnterQueue()
+                addCooldown(this.QUEUE_COOLDOWN_AFTER_ENTER, QueueLeaveMenuItem.material)
             } catch (error: EnterQueueException) {
                 audience.sendTranslatedMessage(error.key, *error.args)
             }
@@ -44,12 +49,12 @@ object QueueService {
 
     fun leaveQueue(audience: Audience = Audience.empty()): CompletableFuture<Unit> {
         if (this.cooldownTaskId != null) return CompletableFuture.completedFuture(Unit)
-        addCooldown(this.QUEUE_COOLDOWN_AFTER_LEAVE)
 
         return runAsync {
             try {
                 audience.sendTranslatedMessage("command.queue.leaving")
                 sendLeaveQueue()
+                addCooldown(this.QUEUE_COOLDOWN_AFTER_LEAVE, QueueEnterMenuItem.material)
             } catch(error: LeaveQueueException) {
                 audience.sendTranslatedMessage(error.key, *error.args)
             }
@@ -95,7 +100,7 @@ object QueueService {
         LobbyStatusNotifierService.stopShowingLobbyStatus()
     }
 
-    suspend fun sendLeaveQueue() {
+    private suspend fun sendLeaveQueue() {
         val queueUuidCopy = this.queueUuid ?: throw LeaveQueueException("command.queue.leave.error.not_in_queue")
 
         this.queueUuid = null
@@ -130,10 +135,13 @@ object QueueService {
 
     fun isInQueue(): Boolean = this.queueUuid != null
 
-    private fun addCooldown(cooldownInTicks: Long) {
+    private fun addCooldown(cooldownInTicks: Long, material: Material) {
         this.cooldownTaskId = Bukkit.getScheduler().runTaskLaterAsynchronously(Main.inst, Runnable {
             this.cooldownTaskId = null
         }, cooldownInTicks).taskId
+        runSync {
+            LobbyMenu.visualizeCooldownForAll(material, cooldownInTicks.toInt())
+        }
     }
 
 }

@@ -18,7 +18,7 @@ object LobbyService {
     private var lobby: Lobby? by Delegates.observable(null as Lobby?) { _, _, _ ->
         runAsync {
             try {
-                QueueService.sendLeaveQueue()
+                QueueService.leaveQueue()
             } catch (_: LeaveQueueException) {
             }
         }
