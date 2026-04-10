@@ -6,12 +6,12 @@
 
 ### Added
 * New translation keys:
-  * `command.error.preparing_match`: Shown when a lobby change is tried when a match is being started.
+  * `command.error.preparing_match`: Shown when attempting a lobby change when a match is being started.
   * `command.lobby.set.access_type.success.open_announcement`: Announced when a lobby is set to `Open`.
   * `match_active`: Shown to a player when they log in and a Serverwar is active.
 
 ### Changed
-* Made queue debug messages shown in console easier to read.
+* Made queue messages in console easier to read.
 
 ### Fixed
 * Stop changing lobby properties when a match is being started, via commands and in menu.
