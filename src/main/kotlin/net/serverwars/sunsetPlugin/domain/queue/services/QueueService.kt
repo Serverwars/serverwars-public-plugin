@@ -22,7 +22,7 @@ import java.util.concurrent.CompletableFuture
 
 object QueueService {
 
-    const val QUEUE_COOLDOWN_AFTER_ENTER = 20L
+    const val QUEUE_COOLDOWN_AFTER_ENTER = 30L
     const val QUEUE_COOLDOWN_AFTER_LEAVE = 60L
 
     private var queueUuid: UUID? = null
@@ -35,7 +35,7 @@ object QueueService {
         return runAsync {
             try {
                 audience.sendTranslatedMessage("command.queue.entering")
-                enterQueue()
+                sendEnterQueue()
             } catch (error: EnterQueueException) {
                 audience.sendTranslatedMessage(error.key, *error.args)
             }
@@ -49,14 +49,14 @@ object QueueService {
         return runAsync {
             try {
                 audience.sendTranslatedMessage("command.queue.leaving")
-                leaveQueue()
+                sendLeaveQueue()
             } catch(error: LeaveQueueException) {
                 audience.sendTranslatedMessage(error.key, *error.args)
             }
         }
     }
 
-    private suspend fun enterQueue() {
+    private suspend fun sendEnterQueue() {
         if (this.queueUuid != null) {
             throw EnterQueueException("command.queue.enter.error.already_in_queue")
         }
@@ -95,7 +95,7 @@ object QueueService {
         LobbyStatusNotifierService.stopShowingLobbyStatus()
     }
 
-    private suspend fun leaveQueue() {
+    suspend fun sendLeaveQueue() {
         val queueUuidCopy = this.queueUuid ?: throw LeaveQueueException("command.queue.leave.error.not_in_queue")
 
         this.queueUuid = null
@@ -123,7 +123,7 @@ object QueueService {
         else if (queueEntryStatus.status == QueueEntryStatusType.LEFT_QUEUE && this.queueUuid != null) {
             LobbyService.getLobbyCopy()?.sendMessage("command.queue.leave.error.forced_to_leave_queue")
             try {
-                leaveQueue()
+                sendLeaveQueue()
             } catch (_: LeaveQueueException) { }
         }
     }

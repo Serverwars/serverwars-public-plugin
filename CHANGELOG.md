@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.1
+
+### Fixed
+* Creating a Serverwars lobby no longer causes a short cooldown to enter the queue.
+
 ## 1.2.0
 
 > This update contains changes to the config file. The most up-to-date `config.yml` can be found [here](https://github.com/Serverwars/serverwars-public-plugin/blob/main/src/main/resources/config.yml).
