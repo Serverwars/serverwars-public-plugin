@@ -28,7 +28,7 @@ import java.util.concurrent.CompletableFuture
 object QueueService {
 
     const val QUEUE_COOLDOWN_AFTER_ENTER = 30L
-    const val QUEUE_COOLDOWN_AFTER_LEAVE = 60L
+    const val QUEUE_COOLDOWN_AFTER_LEAVE = 80L
 
     private var queueUuid: UUID? = null
     private var cooldownTaskId: Int? = null
