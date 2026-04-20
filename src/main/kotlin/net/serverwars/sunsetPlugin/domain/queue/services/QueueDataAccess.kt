@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.timeout
 import net.serverwars.sunsetPlugin.Main
 import net.serverwars.sunsetPlugin.config.Config
-import net.serverwars.sunsetPlugin.domain.queue.exceptions.LeaveQueueException
+import net.serverwars.sunsetPlugin.domain.queue.exceptions.QueueLeaveException
 import net.serverwars.sunsetPlugin.domain.queue.models.queueentrycreate.QueueEntryCreate
 import net.serverwars.sunsetPlugin.domain.queue.models.queueentrycreateresponse.QueueEntryCreateResponse
 import net.serverwars.sunsetPlugin.domain.queue.models.queueentrycreateresponse.QueueEntryCreateResponseDto
@@ -70,7 +70,7 @@ object QueueDataAccess {
     }
 
     @OptIn(FlowPreview::class)
-    private suspend fun listenToQueueEvents(queueUuid: UUID) {
+    suspend fun listenToQueueEvents(queueUuid: UUID) {
         val url = "${Config.getApiBaseUrl()}/queue/$queueUuid"
 
         runCatching {
@@ -104,7 +104,7 @@ object QueueDataAccess {
                 Main.inst.logger.severe("[QUEUE LISTEN Error] $error")
                 try {
                     QueueService.leaveQueue()
-                } catch (_: LeaveQueueException) {
+                } catch (_: QueueLeaveException) {
                 }
             }
         }

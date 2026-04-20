@@ -17,10 +17,10 @@ object ServerService {
         }
     }
 
-    fun getServerUuid(): UUID = server?.serverUuid
+    fun getServerUuid(): UUID = this.server?.serverUuid
         ?: throw GetServerException("Cached server is null. Is the secret correctly configured?")
 
-    fun getServerSlug(): String = server?.slug
+    fun getServerSlug(): String = this.server?.slug
         ?: throw GetServerException("Cached server is null. Is the secret correctly configured?")
 
 }

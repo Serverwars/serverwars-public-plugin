@@ -8,7 +8,7 @@ import net.serverwars.sunsetPlugin.domain.lobby.exceptions.UpdateLobbyException
 import net.serverwars.sunsetPlugin.domain.lobby.models.*
 import net.serverwars.sunsetPlugin.domain.match.services.MatchService
 import net.serverwars.sunsetPlugin.domain.menu.models.menu.LobbyMenu
-import net.serverwars.sunsetPlugin.domain.queue.exceptions.LeaveQueueException
+import net.serverwars.sunsetPlugin.domain.queue.exceptions.QueueLeaveException
 import net.serverwars.sunsetPlugin.domain.queue.services.QueueService
 import net.serverwars.sunsetPlugin.util.*
 import java.util.*
@@ -20,7 +20,7 @@ object LobbyService {
         runAsync {
             try {
                 QueueService.leaveQueue()
-            } catch (_: LeaveQueueException) {
+            } catch (_: QueueLeaveException) {
             }
         }
     }

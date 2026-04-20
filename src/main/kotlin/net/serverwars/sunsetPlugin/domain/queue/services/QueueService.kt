@@ -10,8 +10,8 @@ import net.serverwars.sunsetPlugin.domain.match.services.MatchService
 import net.serverwars.sunsetPlugin.domain.menu.models.menu.LobbyMenu
 import net.serverwars.sunsetPlugin.domain.menu.models.menuitem.QueueEnterMenuItem
 import net.serverwars.sunsetPlugin.domain.menu.models.menuitem.QueueLeaveMenuItem
-import net.serverwars.sunsetPlugin.domain.queue.exceptions.EnterQueueException
-import net.serverwars.sunsetPlugin.domain.queue.exceptions.LeaveQueueException
+import net.serverwars.sunsetPlugin.domain.queue.exceptions.QueueEnterException
+import net.serverwars.sunsetPlugin.domain.queue.exceptions.QueueLeaveException
 import net.serverwars.sunsetPlugin.domain.queue.models.queueentrystatus.QueueEntryStatus
 import net.serverwars.sunsetPlugin.domain.queue.models.queueentrystatus.QueueEntryStatusType
 import net.serverwars.sunsetPlugin.domain.queue.services.mappers.QueueEntryCreateMapper
@@ -32,21 +32,21 @@ object QueueService {
     const val QUEUE_COOLDOWN_AFTER_ENTER = 30L
     const val QUEUE_COOLDOWN_AFTER_LEAVE = 80L // Equal to queue update interval
 
-    private var queueEnterTimestamp: Long? = null
-    private var queueUuid: UUID? = null
-    private var cooldownTaskId: Int? = null
+    var queueEnterTimestamp: Long? = null
+    var queueUuid: UUID? = null
+    var cooldownTaskId: Int? = null
 
-    fun getTimeInQueue(): Long = queueEnterTimestamp?.let { now() - it } ?: 0
+    fun getTimeInQueue(): Long = this.queueEnterTimestamp?.let { now() - it } ?: 0
 
     fun enterQueue(audience: Audience): CompletableFuture<Unit> {
         if (this.cooldownTaskId != null) return CompletableFuture.completedFuture(Unit)
 
+        audience.sendTranslatedMessage("command.queue.entering")
         return runAsync {
             try {
-                audience.sendTranslatedMessage("command.queue.entering")
                 sendEnterQueue()
                 addCooldown(this.QUEUE_COOLDOWN_AFTER_ENTER, QueueLeaveMenuItem.material)
-            } catch (error: EnterQueueException) {
+            } catch (error: QueueEnterException) {
                 audience.sendTranslatedMessage(error.key, *error.args)
             }
         }
@@ -55,12 +55,12 @@ object QueueService {
     fun leaveQueue(audience: Audience = Audience.empty()): CompletableFuture<Unit> {
         if (this.cooldownTaskId != null) return CompletableFuture.completedFuture(Unit)
 
+        audience.sendTranslatedMessage("command.queue.leaving")
         return runAsync {
             try {
-                audience.sendTranslatedMessage("command.queue.leaving")
                 sendLeaveQueue()
                 addCooldown(this.QUEUE_COOLDOWN_AFTER_LEAVE, QueueEnterMenuItem.material)
-            } catch(error: LeaveQueueException) {
+            } catch(error: QueueLeaveException) {
                 audience.sendTranslatedMessage(error.key, *error.args)
             }
         }
@@ -68,13 +68,13 @@ object QueueService {
 
     private suspend fun sendEnterQueue() {
         if (this.queueUuid != null) {
-            throw EnterQueueException("command.queue.enter.error.already_in_queue")
+            throw QueueEnterException("command.queue.enter.error.already_in_queue")
         }
 
-        val lobby = LobbyService.getLobbyCopy() ?: throw EnterQueueException("command.queue.enter.error.no_lobby")
+        val lobby = LobbyService.getLobbyCopy() ?: throw QueueEnterException("command.queue.enter.error.no_lobby")
 
         if (lobby.getParticipantAmount() < Lobby.MIN_LOBBY_SIZE) {
-            throw EnterQueueException(
+            throw QueueEnterException(
                 "command.queue.enter.error.not_enough_players",
                 lobby.getParticipantAmount(),
                 Lobby.MIN_LOBBY_SIZE
@@ -85,10 +85,10 @@ object QueueService {
         try {
             val isInMatch = MatchService.checkInMatch()
             if (isInMatch) {
-                throw EnterQueueException("command.queue.enter.error.already_in_match")
+                throw QueueEnterException("command.queue.enter.error.already_in_match")
             }
         } catch (_: ApiException) {
-            throw EnterQueueException("command.queue.enter.error.api_exception")
+            throw QueueEnterException("command.queue.enter.error.api_exception")
         }
 
         // Enter queue
@@ -98,7 +98,7 @@ object QueueService {
             this.queueUuid = queueEntryCreateResponse.queueEntryUuid
             QueueTimerService.startTimer(lobby, queueEntryCreateResponse.queueEntryUuid)
         } catch (_: ApiException) {
-            throw EnterQueueException("command.queue.enter.error.api_exception")
+            throw QueueEnterException("command.queue.enter.error.api_exception")
         }
         lobby.sendMessage("command.queue.enter.success.notify_lobby")
         playEnterQueueSound(lobby)
@@ -109,7 +109,7 @@ object QueueService {
     }
 
     private suspend fun sendLeaveQueue() {
-        val queueUuidCopy = this.queueUuid ?: throw LeaveQueueException("command.queue.leave.error.not_in_queue")
+        val queueUuidCopy = this.queueUuid ?: throw QueueLeaveException("command.queue.leave.error.not_in_queue")
 
         this.queueUuid = null
         QueueTimerService.stopTimer(queueUuidCopy)
@@ -125,7 +125,7 @@ object QueueService {
             Main.inst.logger.info("[QUEUE] Left queue, time in queue: ${getTimeInQueue()}ms")
             this.queueEnterTimestamp = null
         } catch (_: ApiException) {
-            throw LeaveQueueException("command.queue.leave.error.api_exception")
+            throw QueueLeaveException("command.queue.leave.error.api_exception")
         }
     }
 
@@ -149,7 +149,7 @@ object QueueService {
             LobbyService.getLobbyCopy()?.sendMessage("command.queue.leave.error.forced_to_leave_queue")
             try {
                 sendLeaveQueue()
-            } catch (_: LeaveQueueException) { }
+            } catch (_: QueueLeaveException) { }
         }
     }
 

@@ -1,5 +1,5 @@
 name: Serverwars
-version: '1.3.0'
+version: '1.4.0-SNAPSHOT'
 main: net.serverwars.sunsetPlugin.Main
 api-version: '1.21'
 authors: [ Wout ]
@@ -113,3 +113,16 @@ permissions:
   serverwars.commands.match.enter:
     description: Allows entering the match through commands
     default: true
+
+  # Tournament
+  serverwars.commands.tournament.ready:
+    description: Allows marking the server as ready in tournaments
+    default: op
+
+  serverwars.commands.tournament.enter:
+    description: Allows making a lobby enter a tournament match
+    default: op
+
+  serverwars.commands.tournament.leave:
+    description: Allows making a lobby leave a tournament match
+    default: op

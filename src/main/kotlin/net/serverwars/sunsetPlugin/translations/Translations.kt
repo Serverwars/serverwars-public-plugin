@@ -19,8 +19,8 @@ object Translations {
         } else rawValue
 
         val prefix = when {
-            "error." in key -> properties.getProperty("prefix.error_message", "prefix.error_message")
-            "success." in key -> properties.getProperty("prefix.success_message", "prefix.success_message")
+            "error" in key -> properties.getProperty("prefix.error_message", "prefix.error_message")
+            "success" in key -> properties.getProperty("prefix.success_message", "prefix.success_message")
             else -> ""
         }
 
