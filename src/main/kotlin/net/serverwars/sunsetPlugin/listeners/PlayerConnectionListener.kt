@@ -1,10 +1,12 @@
 package net.serverwars.sunsetPlugin.listeners
 
 import net.serverwars.sunsetPlugin.domain.lobby.models.Lobby
+import net.serverwars.sunsetPlugin.domain.lobby.models.LobbyAccessType
 import net.serverwars.sunsetPlugin.domain.lobby.models.Participant
 import net.serverwars.sunsetPlugin.domain.lobby.services.LobbyService
 import net.serverwars.sunsetPlugin.domain.match.services.MatchService
 import net.serverwars.sunsetPlugin.translations.sendTranslatedMessage
+import net.serverwars.sunsetPlugin.util.rest.exceptions.callApi
 import net.serverwars.sunsetPlugin.util.runAsync
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -16,6 +18,11 @@ object PlayerConnectionListener : Listener {
     @EventHandler
     fun onPlayerJoin(event: PlayerJoinEvent) {
         runAsync {
+            if (LobbyService.getLobbyCopy()?.getLobbySettings()?.accessType == LobbyAccessType.OPEN) {
+                event.player.sendTranslatedMessage("command.lobby.create.success.open_announcement")
+            }
+        }
+        callApi {
             if (MatchService.checkInMatch()) {
                 event.player.sendTranslatedMessage("match_active")
             }

@@ -5,7 +5,7 @@ import com.mojang.brigadier.context.CommandContext
 import io.papermc.paper.command.brigadier.CommandSourceStack
 import net.serverwars.sunsetPlugin.domain.match.services.MatchService
 import net.serverwars.sunsetPlugin.translations.sendTranslatedMessage
-import net.serverwars.sunsetPlugin.util.runAsync
+import net.serverwars.sunsetPlugin.util.rest.exceptions.callApi
 import net.serverwars.sunsetPlugin.util.runSync
 import net.serverwars.sunsetPlugin.util.sendPlayerToMatch
 import org.bukkit.entity.Player
@@ -22,7 +22,7 @@ object CommandMatchEnter {
     }
 
     fun run(joiner: Player): Int {
-        runAsync {
+        callApi {
             if (MatchService.checkInMatch()) {
                 runSync { sendPlayerToMatch(joiner) }
             } else {

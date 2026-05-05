@@ -1,6 +1,5 @@
 package net.serverwars.sunsetPlugin.domain.queue.services
 
-import io.ktor.client.call.*
 import io.ktor.client.plugins.sse.*
 import io.ktor.client.request.*
 import io.ktor.http.*
@@ -21,7 +20,7 @@ import net.serverwars.sunsetPlugin.domain.queue.services.mappers.QueueEntryCreat
 import net.serverwars.sunsetPlugin.domain.queue.services.mappers.QueueEntryDeleteMapper
 import net.serverwars.sunsetPlugin.domain.queue.services.mappers.QueueEntryStatusMapper
 import net.serverwars.sunsetPlugin.util.rest.HttpClient
-import net.serverwars.sunsetPlugin.util.rest.exceptions.ApiException
+import net.serverwars.sunsetPlugin.util.rest.exceptions.parse
 import net.serverwars.sunsetPlugin.util.rest.parseSSEDto
 import net.serverwars.sunsetPlugin.util.runAsync
 import java.util.*
@@ -31,42 +30,27 @@ object QueueDataAccess {
 
     private var stopListening = false
 
-    suspend fun enterQueue(queueEntryCreate: QueueEntryCreate): QueueEntryCreateResponse =
-        runCatching {
-            val url = "${Config.getApiBaseUrl()}/queue/enter"
-            val response = HttpClient.instance.post(url) {
-                contentType(ContentType.Application.Json)
-                setBody(QueueEntryCreateMapper.toDto(queueEntryCreate))
-            }
-
-            if (!response.status.isSuccess()) {
-                error("${response.status} Response body: ${response.body() ?: ""}")
-            }
-
-            QueueEntryCreateResponseMapper.fromDto(response.body<QueueEntryCreateResponseDto>())
-                .also { result -> runAsync { listenToQueueEvents(result.queueEntryUuid) } } // Launch in background
-        }.getOrElse { error ->
-            Main.inst.logger.severe("[API EXCEPTION] Could not enter queue: ${error.message ?: "Unknown error"}")
-            throw ApiException()
+    suspend fun enterQueue(queueEntryCreate: QueueEntryCreate): QueueEntryCreateResponse {
+        val url = "${Config.getApiBaseUrl()}/queue/enter"
+        val response = HttpClient.instance.post(url) {
+            contentType(ContentType.Application.Json)
+            setBody(QueueEntryCreateMapper.toDto(queueEntryCreate))
         }
+        val dto = response.parse<QueueEntryCreateResponseDto>("Could not enter queue")
+        return QueueEntryCreateResponseMapper.fromDto(dto).also { result ->
+            runAsync { listenToQueueEvents(result.queueEntryUuid) } // Launch in background
+        }
+    }
 
     suspend fun leaveQueue(queueUuid: UUID) {
-        stopListening = true
-        runCatching {
-            val url = "${Config.getApiBaseUrl()}/queue/leave"
-            val response = HttpClient.instance.put(url) {
-                contentType(ContentType.Application.Json)
-                setBody(QueueEntryDeleteMapper.toDto(queueUuid))
-            }
+        this.stopListening = true
 
-            if (!response.status.isSuccess()) {
-                val body = response.body<String>()
-                error("${response.status} Response body: $body")
-            }
-        }.onFailure { error ->
-            Main.inst.logger.severe("[API EXCEPTION] Could not leave queue: ${error.message ?: "Unknown error"}")
-            throw ApiException()
+        val url = "${Config.getApiBaseUrl()}/queue/leave"
+        val response = HttpClient.instance.put(url) {
+            contentType(ContentType.Application.Json)
+            setBody(QueueEntryDeleteMapper.toDto(queueUuid))
         }
+        response.parse<Any>("Could not leave queue")
     }
 
     @OptIn(FlowPreview::class)

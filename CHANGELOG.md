@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.4.0
+
+> This update contains changes to the translation files. The most up-to-date `plugins/Serverwars/lang` files can be found [here](https://github.com/Serverwars/serverwars-public-plugin/tree/main/src/main/resources/lang).
+
+### Added
+* Show join-lobby-message to players joining the server while an open lobby is present.
+
 ## 1.3.0 (2026-04-10)
 
 > This update contains changes to the translation files. The most up-to-date `plugins/Serverwars/lang` files can be found [here](https://github.com/Serverwars/serverwars-public-plugin/tree/main/src/main/resources/lang).
