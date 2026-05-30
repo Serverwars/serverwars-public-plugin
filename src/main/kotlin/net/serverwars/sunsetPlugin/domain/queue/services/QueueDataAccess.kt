@@ -73,6 +73,7 @@ object QueueDataAccess {
                         val statusMessage = when (queueStatus.status) {
                             QueueEntryStatusType.NO_MATCH_FOUND -> null // Still in queue
                             QueueEntryStatusType.LEFT_QUEUE -> null // Already logged
+                            QueueEntryStatusType.TOURNAMENT_CANCELLED -> "Tournament cancelled"
                             QueueEntryStatusType.MATCH_FOUND -> "Match found after ${QueueService.getTimeInQueue()}ms! Preparing game server..."
                             QueueEntryStatusType.ERROR -> "Error: ${queueStatus.errorMessage}"
                         }

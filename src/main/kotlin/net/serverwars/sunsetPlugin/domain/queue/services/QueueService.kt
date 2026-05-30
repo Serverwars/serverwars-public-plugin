@@ -90,7 +90,7 @@ object QueueService {
             val queueEntryCreate = QueueEntryCreateMapper.fromLobby(lobby)
             val queueEntryCreateResponse = QueueDataAccess.enterQueue(queueEntryCreate)
             this.queueUuid = queueEntryCreateResponse.queueEntryUuid
-            QueueTimerService.startTimer(lobby, queueEntryCreateResponse.queueEntryUuid)
+            QueueTimerService.startTimer(lobby, queueEntryCreateResponse.queueEntryUuid, "queue.time_in_queue.action_bar")
 
             // Notify lobby
             lobby.sendMessage("command.queue.enter.success.notify_lobby")
@@ -162,6 +162,12 @@ object QueueService {
             MatchDataAccess.listenToMatchStatusEvents(matchUuid = matchUuid)
         } else if (queueEntryStatus.status == QueueEntryStatusType.LEFT_QUEUE && this.queueUuid != null) {
             LobbyService.getLobbyCopy()?.sendMessage("command.queue.leave.error.forced_to_leave_queue")
+            try {
+                leaveQueue()
+            } catch (_: ApiException) {
+            }
+        } else if (queueEntryStatus.status == QueueEntryStatusType.TOURNAMENT_CANCELLED) {
+            LobbyService.getLobbyCopy()?.sendMessage("command.tournament.ready.error.tournament_cancelled")
             try {
                 leaveQueue()
             } catch (_: ApiException) {

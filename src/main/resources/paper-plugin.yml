@@ -119,10 +119,6 @@ permissions:
     description: Allows marking the server as ready in tournaments
     default: op
 
-  serverwars.commands.tournament.enter:
-    description: Allows making a lobby enter a tournament match
-    default: op
-
-  serverwars.commands.tournament.leave:
-    description: Allows making a lobby leave a tournament match
+  serverwars.commands.tournament.unready:
+    description: Allows marking the server as not ready in tournaments
     default: op

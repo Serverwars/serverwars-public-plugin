@@ -9,7 +9,7 @@ import net.serverwars.sunsetPlugin.domain.match.services.MatchService
 import net.serverwars.sunsetPlugin.domain.queue.services.QueueService
 import net.serverwars.sunsetPlugin.domain.queue.services.QueueTimerService
 import net.serverwars.sunsetPlugin.domain.queue.services.mappers.QueueEntryCreateMapper
-import net.serverwars.sunsetPlugin.domain.tournamentparticipant.models.tournamentparticipantenter.TournamentParticipantEnter
+import net.serverwars.sunsetPlugin.domain.tournamentparticipant.models.tournamentparticipantready.TournamentParticipantReady
 import net.serverwars.sunsetPlugin.translations.sendTranslatedMessage
 import net.serverwars.sunsetPlugin.util.now
 import net.serverwars.sunsetPlugin.util.playEnterQueueSound
@@ -23,24 +23,6 @@ object TournamentParticipantService {
     private const val COOLDOWN = 50L
 
     fun ready(audience: Audience): CompletableFuture<Unit> {
-        if (QueueService.cooldownTaskId != null) return CompletableFuture.completedFuture(Unit)
-
-        audience.sendTranslatedMessage("command.tournament.readying")
-
-        return callApi(
-            audience = audience,
-            errorCodeMap = mapOf(
-                "TOURNAMENT_PARTICIPANT_READY_VALIDATION_ALREADY_READY" to ErrorCodeMessage("command.tournament.ready.error.already_ready"),
-                "TOURNAMENT_PARTICIPANT_READY_VALIDATION_NOT_IN_READY_TOURNAMENT" to ErrorCodeMessage("command.tournament.ready.error.no_tournament"),
-            )
-        ) {
-            TournamentParticipantDataAccess.readyServer()
-            addCooldown()
-            audience.sendTranslatedMessage("command.tournament.ready.success")
-        }
-    }
-
-    fun enter(audience: Audience): CompletableFuture<Unit> {
         val default = CompletableFuture.completedFuture(Unit)
 
         // Check cooldown
@@ -71,15 +53,16 @@ object TournamentParticipantService {
             return default
         }
 
-        audience.sendTranslatedMessage("command.tournament.entering")
+        audience.sendTranslatedMessage("command.tournament.readying")
+
         return callApi(
             audience = audience,
             errorCodeMap = mapOf(
                 "SERVER_SECRET_SECRET_NOT_FOUND" to ErrorCodeMessage("command.error.invalid_server_secret"),
-                "TOURNAMENT_PARTICIPANT_VALIDATION_ENTER_NOT_IN_TOURNAMENT" to ErrorCodeMessage("command.tournament.enter.error.no_tournament"),
-                "TOURNAMENT_PARTICIPANT_VALIDATION_ENTER_INVALID_GAME_TYPE" to ErrorCodeMessage("command.tournament.enter.error.invalid_game_type"),
-                "TOURNAMENT_PARTICIPANT_VALIDATION_ENTER_INVALID_TEAM_SIZE" to ErrorCodeMessage("command.tournament.enter.error.invalid_team_size"),
-                "TOURNAMENT_PARTICIPANT_VALIDATION_ENTER_NO_ACTIVE_MATCH" to ErrorCodeMessage("command.tournament.enter.error.no_active_match"),
+                "TOURNAMENT_PARTICIPANT_VALIDATION_READY_ALREADY_READY" to ErrorCodeMessage("command.tournament.ready.error.already_ready"),
+                "TOURNAMENT_PARTICIPANT_VALIDATION_READY_NOT_IN_READY_TOURNAMENT" to ErrorCodeMessage("command.tournament.ready.error.no_tournament"),
+                "TOURNAMENT_PARTICIPANT_VALIDATION_READY_INVALID_GAME_TYPE" to ErrorCodeMessage("command.tournament.ready.error.invalid_game_type"),
+                "TOURNAMENT_PARTICIPANT_VALIDATION_READY_INVALID_TEAM_SIZE" to ErrorCodeMessage("command.tournament.ready.error.invalid_team_size"),
             )
         ) {
             // Make sure server is not in match yet
@@ -94,25 +77,26 @@ object TournamentParticipantService {
             }
 
             // Enter queue
-            val tournamentParticipantEnter = TournamentParticipantEnter(QueueEntryCreateMapper.fromLobby(lobby))
-            val queueEntryCreateResponse = TournamentParticipantDataAccess.enterServer(tournamentParticipantEnter)
+            val tournamentParticipantEnter = TournamentParticipantReady(QueueEntryCreateMapper.fromLobby(lobby))
+            val queueEntryCreateResponse = TournamentParticipantDataAccess.readyServer(tournamentParticipantEnter)
             QueueService.queueUuid = queueEntryCreateResponse.queueEntryUuid
 
             // Notify lobby
-            QueueTimerService.startTimer(lobby, queueEntryCreateResponse.queueEntryUuid)
-            lobby.sendMessage("command.queue.enter.success.notify_lobby")
+            QueueTimerService.startTimer(lobby, queueEntryCreateResponse.queueEntryUuid, "queue.tournament_waiting.action_bar")
+            lobby.sendMessage("command.tournament.ready.success")
             playEnterQueueSound(lobby)
             LobbyStatusNotifierService.stopShowingLobbyStatus()
 
             QueueService.queueEnterTimestamp = now()
-            Main.inst.logger.info("[QUEUE] Entering tournament, waiting for opponent...")
+            Main.inst.logger.info("[QUEUE] Server marked ready, waiting for tournament to start...")
             addCooldown()
         }
     }
 
-    fun leave(audience: Audience = Audience.empty()): CompletableFuture<Unit> {
+    fun unready(audience: Audience): CompletableFuture<Unit> {
         return QueueService.leaveQueue(audience)
     }
+
 
     private fun addCooldown() {
         QueueService.cooldownTaskId = Bukkit.getScheduler().runTaskLaterAsynchronously(Main.inst, Runnable {

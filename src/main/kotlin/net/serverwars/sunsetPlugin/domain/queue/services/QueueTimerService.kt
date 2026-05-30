@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap
 object QueueTimerService {
     private val tasks: MutableMap<UUID, Pair<Lobby, BukkitTask>> = ConcurrentHashMap()
 
-    fun startTimer(lobby: Lobby, queueUuid: UUID) {
+    fun startTimer(lobby: Lobby, queueUuid: UUID, actionBarMessageKey: String) {
         if (tasks.containsKey(queueUuid)) return
 
         val startTime = now()
@@ -19,7 +19,7 @@ object QueueTimerService {
             Main.inst,
             Runnable {
                 val timeInQueue = (now() - startTime) / 1000
-                lobby.sendActionBarMessage("queue.time_in_queue.action_bar", formatTime(timeInQueue))
+                lobby.sendActionBarMessage(actionBarMessageKey, formatTime(timeInQueue))
             },
             0L, 20L // Run instantly, repeat every 20 ticks (1 second)
         )

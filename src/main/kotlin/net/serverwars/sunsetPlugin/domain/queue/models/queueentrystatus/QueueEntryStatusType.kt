@@ -5,6 +5,7 @@ enum class QueueEntryStatusType(val value: String) {
     NO_MATCH_FOUND("no_match_found"),
     LEFT_QUEUE("error_not_in_queue"),
     ERROR("error"),
+    TOURNAMENT_CANCELLED("tournament_cancelled"),
     ;
 
     companion object {

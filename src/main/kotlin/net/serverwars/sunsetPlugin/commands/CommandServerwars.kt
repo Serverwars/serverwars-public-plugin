@@ -12,9 +12,8 @@ import net.serverwars.sunsetPlugin.commands.lobby.*
 import net.serverwars.sunsetPlugin.commands.match.CommandMatchEnter
 import net.serverwars.sunsetPlugin.commands.queue.CommandQueueEnter
 import net.serverwars.sunsetPlugin.commands.queue.CommandQueueLeave
-import net.serverwars.sunsetPlugin.commands.tournament.CommandTournamentEnter
-import net.serverwars.sunsetPlugin.commands.tournament.CommandTournamentLeave
 import net.serverwars.sunsetPlugin.commands.tournament.CommandTournamentReady
+import net.serverwars.sunsetPlugin.commands.tournament.CommandTournamentUnready
 import org.bukkit.command.CommandSender
 
 object CommandServerwars {
@@ -193,21 +192,16 @@ object CommandServerwars {
                 hasAnyChildPermission(
                     it.sender,
                     "serverwars.commands.tournament.ready",
-                    "serverwars.commands.tournament.enter",
-                    "serverwars.commands.tournament.leave",
+                    "serverwars.commands.tournament.unready",
                 )
             }
             .then(Commands.literal("ready")
                 .requires { it.sender.hasPermission("serverwars.commands.tournament.ready") }
                 .executes(CommandTournamentReady::run)
             )
-            .then(Commands.literal("enter")
-                .requires { it.sender.hasPermission("serverwars.commands.tournament.enter") }
-                .executes(CommandTournamentEnter::run)
-            )
-            .then(Commands.literal("leave")
-                .requires { it.sender.hasPermission("serverwars.commands.tournament.leave") }
-                .executes(CommandTournamentLeave::run)
+            .then(Commands.literal("unready")
+                .requires { it.sender.hasPermission("serverwars.commands.tournament.unready") }
+                .executes(CommandTournamentUnready::run)
             )
         )
 
