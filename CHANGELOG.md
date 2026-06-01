@@ -6,6 +6,28 @@
 
 ### Added
 * Show join-lobby-message to players joining the server while an open lobby is present.
+* Added new commands:
+  * `/sw tournament ready`: Indicates the server is ready to enter the tournament.
+  * `/sw tournament unready`: Indicates the server is no longer ready to enter the tournament.
+* Added new permissions for the new commands:
+  * `serverwars.commands.tournament.ready`: Default only for enabled for OPs.
+  * `serverwars.commands.tournament.unready`: Default only for enabled for OPs.
+* Added new translation keys:
+  * `command.tournament.readying`
+  * `command.tournament.ready.success`
+  * `command.tournament.ready.error.already_ready`
+  * `command.tournament.ready.error.no_tournament`
+  * `command.tournament.ready.error.invalid_game_type`
+  * `command.tournament.ready.error.invalid_team_size`
+  * `command.tournament.ready.error.tournament_cancelled`
+  * `queue.tournament_waiting.action_bar`
+  * `command.error.api_exception`
+  * `command.error.invalid_server_secret`
+
+### Removed
+* Removed unused translation keys:
+  * `command.queue.enter.error.api_exception`
+  * `command.queue.leave.error.api_exception`
 
 ## 1.3.0 (2026-04-10)
 
