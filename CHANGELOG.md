@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.4.0
+## 1.4.0 (2026-06-08)
 
 > This update contains changes to the translation files. The most up-to-date `plugins/Serverwars/lang` files can be found [here](https://github.com/Serverwars/serverwars-public-plugin/tree/main/src/main/resources/lang).
 

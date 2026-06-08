@@ -1,9 +1,9 @@
 name: Serverwars
-version: '1.4.0-SNAPSHOT'
+version: '1.4.0'
 main: net.serverwars.sunsetPlugin.Main
 api-version: '1.21'
 authors: [ Wout ]
-website: serverwars.net
+website: serverwars.net/docs
 bootstrapper: "net.serverwars.sunsetPlugin.PluginBootstrapper"
 
 permissions:

@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "2.2.20"
+    kotlin("jvm") version "2.3.21"
     id("com.gradleup.shadow") version "9.1.0"
     id("io.ktor.plugin") version "3.0.3"
     id("org.jetbrains.kotlin.plugin.serialization") version "2.1.10"
@@ -10,7 +10,7 @@ application {
 }
 
 group = "net.serverwars"
-version = "1.4.0-SNAPSHOT"
+version = "1.4.0"
 
 repositories {
     mavenCentral()
@@ -20,7 +20,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.21.11-rc3-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.21.11-rc3-R0.1-SNAPSHOT") // v1.21.11 since newer versions require java v25
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
     // Ktor HTTP Client (CIO engine for async network requests)
