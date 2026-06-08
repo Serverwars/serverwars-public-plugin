@@ -24,6 +24,9 @@
   * `command.error.api_exception`
   * `command.error.invalid_server_secret`
 
+### Changed
+* Updated version to 26.1.2
+
 ### Removed
 * Removed unused translation keys:
   * `command.queue.enter.error.api_exception`
