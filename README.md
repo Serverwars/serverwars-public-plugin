@@ -52,7 +52,7 @@ And extra commands like:
 
 ## Installation
 
-Paper 1.21.11 with Java 24 (or higher) is required. Plugin should also work on Paper forks. Spigot is not supported.
+Paper 26.1.2 with Java 21 (or higher) is required. Plugin should also work on Paper forks. Spigot is not supported.
 
 ## Support
 
